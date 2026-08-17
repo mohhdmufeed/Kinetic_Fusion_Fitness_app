@@ -1,0 +1,71 @@
+# This file is part of wger Workout Manager.
+#
+# wger Workout Manager is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# wger Workout Manager is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Workout Manager.  If not, see <http://www.gnu.org/licenses/>.
+
+# Django
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+)
+from django.db import models
+from django.utils import timezone
+
+# wger
+from wger.measurements.models import Category
+from wger.utils.uuid import uuid7
+
+
+class Measurement(models.Model):
+    class Meta:
+        ordering = [
+            '-date',
+        ]
+
+    id = models.UUIDField(
+        default=uuid7,
+        primary_key=True,
+    )
+
+    category = models.ForeignKey(
+        Category,
+        verbose_name='Category',
+        on_delete=models.CASCADE,
+    )
+
+    date = models.DateTimeField(
+        verbose_name='Date',
+        default=timezone.now,
+    )
+
+    value = models.DecimalField(
+        verbose_name='Value',
+        max_digits=6,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(5000),
+        ],
+    )
+
+    notes = models.CharField(
+        verbose_name='Description',
+        max_length=100,
+        blank=True,
+    )
+
+    def get_owner_object(self):
+        """
+        Returns the object that has owner information
+        """
+        return self.category
