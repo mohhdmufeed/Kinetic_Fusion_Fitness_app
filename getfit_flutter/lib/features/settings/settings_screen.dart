@@ -7,8 +7,10 @@ import '../../../core/auth/auth_service.dart';
 import '../../../core/constants.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/sync/sync_service.dart';
+import '../../../core/utils/move_goal_calculator.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/personal_info_form.dart';
+import '../../../shared/widgets/activity_level_picker.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -23,7 +25,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _pending = 0;
   bool _syncing = false;
   bool _savingProfile = false;
+  bool _savingActivity = false;
   PersonalInfoData _profileData = PersonalInfoData();
+  ActivityData _activityData = ActivityData();
   bool _profileLoaded = false;
 
   @override
@@ -51,6 +55,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             heightCm: profile.heightCm,
             weightKg: profile.weightKg,
             weightUnit: profile.weightUnit,
+          );
+          _activityData = ActivityData(
+            activityLevel: profile.activityLevel,
+            profession: profile.profession,
+            workHours: profile.workHours,
+            workIntensity: profile.workIntensity,
+            sportHours: profile.sportHours,
+            sportIntensity: profile.sportIntensity,
+            freetimeHours: profile.freetimeHours,
+            freetimeIntensity: profile.freetimeIntensity,
+            sleepHours: profile.sleepHours,
+            calculatedMoveGoal: profile.dailyMoveGoalCalories,
           );
         }
         _profileLoaded = true;
@@ -98,6 +114,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } catch (_) {}
 
     if (mounted) setState(() => _savingProfile = false);
+  }
+
+  Future<void> _saveActivity() async {
+    setState(() => _savingActivity = true);
+
+    try {
+      final db = ref.read(databaseProvider);
+      await db.saveUserProfile(
+        UserProfileCompanion(
+          activityLevel: drift.Value(_activityData.activityLevel),
+          profession: drift.Value(_activityData.profession),
+          workHours: drift.Value(_activityData.workHours),
+          workIntensity: drift.Value(_activityData.workIntensity),
+          sportHours: drift.Value(_activityData.sportHours),
+          sportIntensity: drift.Value(_activityData.sportIntensity),
+          freetimeHours: drift.Value(_activityData.freetimeHours),
+          freetimeIntensity: drift.Value(_activityData.freetimeIntensity),
+          sleepHours: drift.Value(_activityData.sleepHours),
+          dailyMoveGoalCalories: drift.Value(_activityData.calculatedMoveGoal),
+        ),
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Daily move goal updated to ~${_activityData.calculatedMoveGoal} kcal ✓'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } catch (_) {}
+
+    if (mounted) setState(() => _savingActivity = false);
   }
 
   Future<void> _syncNow() async {
@@ -244,6 +294,68 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   )
                                 : const Text(
                                     'Save Changes',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Daily Move Goal Section
+          _sectionTitle('Daily Move Goal & Activity Level'),
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: _profileLoaded
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ActivityLevelPicker(
+                          initialData: _activityData,
+                          weightKg: _profileData.weightKg ?? 70.0,
+                          heightCm: _profileData.heightCm ?? 175,
+                          birthDate: _profileData.birthDate,
+                          sex: _profileData.sex,
+                          onChanged: (updated) {
+                            _activityData = updated;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 44,
+                          child: ElevatedButton(
+                            onPressed: _savingActivity ? null : _saveActivity,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: _savingActivity
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Save Move Goal Target',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

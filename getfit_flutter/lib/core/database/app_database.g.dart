@@ -4739,6 +4739,86 @@ class $UserProfileTable extends UserProfile
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('kg'));
+  static const VerificationMeta _activityLevelMeta =
+      const VerificationMeta('activityLevel');
+  @override
+  late final GeneratedColumn<String> activityLevel = GeneratedColumn<String>(
+      'activity_level', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('moderate'));
+  static const VerificationMeta _professionMeta =
+      const VerificationMeta('profession');
+  @override
+  late final GeneratedColumn<String> profession = GeneratedColumn<String>(
+      'profession', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _workHoursMeta =
+      const VerificationMeta('workHours');
+  @override
+  late final GeneratedColumn<double> workHours = GeneratedColumn<double>(
+      'work_hours', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(8.0));
+  static const VerificationMeta _workIntensityMeta =
+      const VerificationMeta('workIntensity');
+  @override
+  late final GeneratedColumn<String> workIntensity = GeneratedColumn<String>(
+      'work_intensity', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('low'));
+  static const VerificationMeta _sportHoursMeta =
+      const VerificationMeta('sportHours');
+  @override
+  late final GeneratedColumn<double> sportHours = GeneratedColumn<double>(
+      'sport_hours', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(3.0));
+  static const VerificationMeta _sportIntensityMeta =
+      const VerificationMeta('sportIntensity');
+  @override
+  late final GeneratedColumn<String> sportIntensity = GeneratedColumn<String>(
+      'sport_intensity', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('medium'));
+  static const VerificationMeta _freetimeHoursMeta =
+      const VerificationMeta('freetimeHours');
+  @override
+  late final GeneratedColumn<double> freetimeHours = GeneratedColumn<double>(
+      'freetime_hours', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(5.0));
+  static const VerificationMeta _freetimeIntensityMeta =
+      const VerificationMeta('freetimeIntensity');
+  @override
+  late final GeneratedColumn<String> freetimeIntensity =
+      GeneratedColumn<String>('freetime_intensity', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('low'));
+  static const VerificationMeta _sleepHoursMeta =
+      const VerificationMeta('sleepHours');
+  @override
+  late final GeneratedColumn<double> sleepHours = GeneratedColumn<double>(
+      'sleep_hours', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(8.0));
+  static const VerificationMeta _dailyMoveGoalCaloriesMeta =
+      const VerificationMeta('dailyMoveGoalCalories');
+  @override
+  late final GeneratedColumn<int> dailyMoveGoalCalories = GeneratedColumn<int>(
+      'daily_move_goal_calories', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(400));
   static const VerificationMeta _lastSyncMeta =
       const VerificationMeta('lastSync');
   @override
@@ -4755,6 +4835,16 @@ class $UserProfileTable extends UserProfile
         heightCm,
         weightKg,
         weightUnit,
+        activityLevel,
+        profession,
+        workHours,
+        workIntensity,
+        sportHours,
+        sportIntensity,
+        freetimeHours,
+        freetimeIntensity,
+        sleepHours,
+        dailyMoveGoalCalories,
         lastSync
       ];
   @override
@@ -4800,6 +4890,64 @@ class $UserProfileTable extends UserProfile
           weightUnit.isAcceptableOrUnknown(
               data['weight_unit']!, _weightUnitMeta));
     }
+    if (data.containsKey('activity_level')) {
+      context.handle(
+          _activityLevelMeta,
+          activityLevel.isAcceptableOrUnknown(
+              data['activity_level']!, _activityLevelMeta));
+    }
+    if (data.containsKey('profession')) {
+      context.handle(
+          _professionMeta,
+          profession.isAcceptableOrUnknown(
+              data['profession']!, _professionMeta));
+    }
+    if (data.containsKey('work_hours')) {
+      context.handle(_workHoursMeta,
+          workHours.isAcceptableOrUnknown(data['work_hours']!, _workHoursMeta));
+    }
+    if (data.containsKey('work_intensity')) {
+      context.handle(
+          _workIntensityMeta,
+          workIntensity.isAcceptableOrUnknown(
+              data['work_intensity']!, _workIntensityMeta));
+    }
+    if (data.containsKey('sport_hours')) {
+      context.handle(
+          _sportHoursMeta,
+          sportHours.isAcceptableOrUnknown(
+              data['sport_hours']!, _sportHoursMeta));
+    }
+    if (data.containsKey('sport_intensity')) {
+      context.handle(
+          _sportIntensityMeta,
+          sportIntensity.isAcceptableOrUnknown(
+              data['sport_intensity']!, _sportIntensityMeta));
+    }
+    if (data.containsKey('freetime_hours')) {
+      context.handle(
+          _freetimeHoursMeta,
+          freetimeHours.isAcceptableOrUnknown(
+              data['freetime_hours']!, _freetimeHoursMeta));
+    }
+    if (data.containsKey('freetime_intensity')) {
+      context.handle(
+          _freetimeIntensityMeta,
+          freetimeIntensity.isAcceptableOrUnknown(
+              data['freetime_intensity']!, _freetimeIntensityMeta));
+    }
+    if (data.containsKey('sleep_hours')) {
+      context.handle(
+          _sleepHoursMeta,
+          sleepHours.isAcceptableOrUnknown(
+              data['sleep_hours']!, _sleepHoursMeta));
+    }
+    if (data.containsKey('daily_move_goal_calories')) {
+      context.handle(
+          _dailyMoveGoalCaloriesMeta,
+          dailyMoveGoalCalories.isAcceptableOrUnknown(
+              data['daily_move_goal_calories']!, _dailyMoveGoalCaloriesMeta));
+    }
     if (data.containsKey('last_sync')) {
       context.handle(_lastSyncMeta,
           lastSync.isAcceptableOrUnknown(data['last_sync']!, _lastSyncMeta));
@@ -4829,6 +4977,26 @@ class $UserProfileTable extends UserProfile
           .read(DriftSqlType.double, data['${effectivePrefix}weight_kg']),
       weightUnit: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}weight_unit'])!,
+      activityLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}activity_level'])!,
+      profession: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}profession'])!,
+      workHours: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}work_hours'])!,
+      workIntensity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}work_intensity'])!,
+      sportHours: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}sport_hours'])!,
+      sportIntensity: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}sport_intensity'])!,
+      freetimeHours: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}freetime_hours'])!,
+      freetimeIntensity: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}freetime_intensity'])!,
+      sleepHours: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}sleep_hours'])!,
+      dailyMoveGoalCalories: attachedDatabase.typeMapping.read(DriftSqlType.int,
+          data['${effectivePrefix}daily_move_goal_calories'])!,
       lastSync: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}last_sync']),
     );
@@ -4849,6 +5017,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
   final int? heightCm;
   final double? weightKg;
   final String weightUnit;
+  final String activityLevel;
+  final String profession;
+  final double workHours;
+  final String workIntensity;
+  final double sportHours;
+  final String sportIntensity;
+  final double freetimeHours;
+  final String freetimeIntensity;
+  final double sleepHours;
+  final int dailyMoveGoalCalories;
   final DateTime? lastSync;
   const UserProfileData(
       {required this.id,
@@ -4859,6 +5037,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       this.heightCm,
       this.weightKg,
       required this.weightUnit,
+      required this.activityLevel,
+      required this.profession,
+      required this.workHours,
+      required this.workIntensity,
+      required this.sportHours,
+      required this.sportIntensity,
+      required this.freetimeHours,
+      required this.freetimeIntensity,
+      required this.sleepHours,
+      required this.dailyMoveGoalCalories,
       this.lastSync});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4877,6 +5065,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       map['weight_kg'] = Variable<double>(weightKg);
     }
     map['weight_unit'] = Variable<String>(weightUnit);
+    map['activity_level'] = Variable<String>(activityLevel);
+    map['profession'] = Variable<String>(profession);
+    map['work_hours'] = Variable<double>(workHours);
+    map['work_intensity'] = Variable<String>(workIntensity);
+    map['sport_hours'] = Variable<double>(sportHours);
+    map['sport_intensity'] = Variable<String>(sportIntensity);
+    map['freetime_hours'] = Variable<double>(freetimeHours);
+    map['freetime_intensity'] = Variable<String>(freetimeIntensity);
+    map['sleep_hours'] = Variable<double>(sleepHours);
+    map['daily_move_goal_calories'] = Variable<int>(dailyMoveGoalCalories);
     if (!nullToAbsent || lastSync != null) {
       map['last_sync'] = Variable<DateTime>(lastSync);
     }
@@ -4899,6 +5097,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           ? const Value.absent()
           : Value(weightKg),
       weightUnit: Value(weightUnit),
+      activityLevel: Value(activityLevel),
+      profession: Value(profession),
+      workHours: Value(workHours),
+      workIntensity: Value(workIntensity),
+      sportHours: Value(sportHours),
+      sportIntensity: Value(sportIntensity),
+      freetimeHours: Value(freetimeHours),
+      freetimeIntensity: Value(freetimeIntensity),
+      sleepHours: Value(sleepHours),
+      dailyMoveGoalCalories: Value(dailyMoveGoalCalories),
       lastSync: lastSync == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSync),
@@ -4917,6 +5125,17 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       heightCm: serializer.fromJson<int?>(json['heightCm']),
       weightKg: serializer.fromJson<double?>(json['weightKg']),
       weightUnit: serializer.fromJson<String>(json['weightUnit']),
+      activityLevel: serializer.fromJson<String>(json['activityLevel']),
+      profession: serializer.fromJson<String>(json['profession']),
+      workHours: serializer.fromJson<double>(json['workHours']),
+      workIntensity: serializer.fromJson<String>(json['workIntensity']),
+      sportHours: serializer.fromJson<double>(json['sportHours']),
+      sportIntensity: serializer.fromJson<String>(json['sportIntensity']),
+      freetimeHours: serializer.fromJson<double>(json['freetimeHours']),
+      freetimeIntensity: serializer.fromJson<String>(json['freetimeIntensity']),
+      sleepHours: serializer.fromJson<double>(json['sleepHours']),
+      dailyMoveGoalCalories:
+          serializer.fromJson<int>(json['dailyMoveGoalCalories']),
       lastSync: serializer.fromJson<DateTime?>(json['lastSync']),
     );
   }
@@ -4932,6 +5151,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       'heightCm': serializer.toJson<int?>(heightCm),
       'weightKg': serializer.toJson<double?>(weightKg),
       'weightUnit': serializer.toJson<String>(weightUnit),
+      'activityLevel': serializer.toJson<String>(activityLevel),
+      'profession': serializer.toJson<String>(profession),
+      'workHours': serializer.toJson<double>(workHours),
+      'workIntensity': serializer.toJson<String>(workIntensity),
+      'sportHours': serializer.toJson<double>(sportHours),
+      'sportIntensity': serializer.toJson<String>(sportIntensity),
+      'freetimeHours': serializer.toJson<double>(freetimeHours),
+      'freetimeIntensity': serializer.toJson<String>(freetimeIntensity),
+      'sleepHours': serializer.toJson<double>(sleepHours),
+      'dailyMoveGoalCalories': serializer.toJson<int>(dailyMoveGoalCalories),
       'lastSync': serializer.toJson<DateTime?>(lastSync),
     };
   }
@@ -4945,6 +5174,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           Value<int?> heightCm = const Value.absent(),
           Value<double?> weightKg = const Value.absent(),
           String? weightUnit,
+          String? activityLevel,
+          String? profession,
+          double? workHours,
+          String? workIntensity,
+          double? sportHours,
+          String? sportIntensity,
+          double? freetimeHours,
+          String? freetimeIntensity,
+          double? sleepHours,
+          int? dailyMoveGoalCalories,
           Value<DateTime?> lastSync = const Value.absent()}) =>
       UserProfileData(
         id: id ?? this.id,
@@ -4955,6 +5194,17 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
         heightCm: heightCm.present ? heightCm.value : this.heightCm,
         weightKg: weightKg.present ? weightKg.value : this.weightKg,
         weightUnit: weightUnit ?? this.weightUnit,
+        activityLevel: activityLevel ?? this.activityLevel,
+        profession: profession ?? this.profession,
+        workHours: workHours ?? this.workHours,
+        workIntensity: workIntensity ?? this.workIntensity,
+        sportHours: sportHours ?? this.sportHours,
+        sportIntensity: sportIntensity ?? this.sportIntensity,
+        freetimeHours: freetimeHours ?? this.freetimeHours,
+        freetimeIntensity: freetimeIntensity ?? this.freetimeIntensity,
+        sleepHours: sleepHours ?? this.sleepHours,
+        dailyMoveGoalCalories:
+            dailyMoveGoalCalories ?? this.dailyMoveGoalCalories,
         lastSync: lastSync.present ? lastSync.value : this.lastSync,
       );
   UserProfileData copyWithCompanion(UserProfileCompanion data) {
@@ -4968,6 +5218,31 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       weightKg: data.weightKg.present ? data.weightKg.value : this.weightKg,
       weightUnit:
           data.weightUnit.present ? data.weightUnit.value : this.weightUnit,
+      activityLevel: data.activityLevel.present
+          ? data.activityLevel.value
+          : this.activityLevel,
+      profession:
+          data.profession.present ? data.profession.value : this.profession,
+      workHours: data.workHours.present ? data.workHours.value : this.workHours,
+      workIntensity: data.workIntensity.present
+          ? data.workIntensity.value
+          : this.workIntensity,
+      sportHours:
+          data.sportHours.present ? data.sportHours.value : this.sportHours,
+      sportIntensity: data.sportIntensity.present
+          ? data.sportIntensity.value
+          : this.sportIntensity,
+      freetimeHours: data.freetimeHours.present
+          ? data.freetimeHours.value
+          : this.freetimeHours,
+      freetimeIntensity: data.freetimeIntensity.present
+          ? data.freetimeIntensity.value
+          : this.freetimeIntensity,
+      sleepHours:
+          data.sleepHours.present ? data.sleepHours.value : this.sleepHours,
+      dailyMoveGoalCalories: data.dailyMoveGoalCalories.present
+          ? data.dailyMoveGoalCalories.value
+          : this.dailyMoveGoalCalories,
       lastSync: data.lastSync.present ? data.lastSync.value : this.lastSync,
     );
   }
@@ -4983,14 +5258,42 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           ..write('heightCm: $heightCm, ')
           ..write('weightKg: $weightKg, ')
           ..write('weightUnit: $weightUnit, ')
+          ..write('activityLevel: $activityLevel, ')
+          ..write('profession: $profession, ')
+          ..write('workHours: $workHours, ')
+          ..write('workIntensity: $workIntensity, ')
+          ..write('sportHours: $sportHours, ')
+          ..write('sportIntensity: $sportIntensity, ')
+          ..write('freetimeHours: $freetimeHours, ')
+          ..write('freetimeIntensity: $freetimeIntensity, ')
+          ..write('sleepHours: $sleepHours, ')
+          ..write('dailyMoveGoalCalories: $dailyMoveGoalCalories, ')
           ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, username, email, birthDate, sex, heightCm,
-      weightKg, weightUnit, lastSync);
+  int get hashCode => Object.hash(
+      id,
+      username,
+      email,
+      birthDate,
+      sex,
+      heightCm,
+      weightKg,
+      weightUnit,
+      activityLevel,
+      profession,
+      workHours,
+      workIntensity,
+      sportHours,
+      sportIntensity,
+      freetimeHours,
+      freetimeIntensity,
+      sleepHours,
+      dailyMoveGoalCalories,
+      lastSync);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5003,6 +5306,16 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           other.heightCm == this.heightCm &&
           other.weightKg == this.weightKg &&
           other.weightUnit == this.weightUnit &&
+          other.activityLevel == this.activityLevel &&
+          other.profession == this.profession &&
+          other.workHours == this.workHours &&
+          other.workIntensity == this.workIntensity &&
+          other.sportHours == this.sportHours &&
+          other.sportIntensity == this.sportIntensity &&
+          other.freetimeHours == this.freetimeHours &&
+          other.freetimeIntensity == this.freetimeIntensity &&
+          other.sleepHours == this.sleepHours &&
+          other.dailyMoveGoalCalories == this.dailyMoveGoalCalories &&
           other.lastSync == this.lastSync);
 }
 
@@ -5015,6 +5328,16 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
   final Value<int?> heightCm;
   final Value<double?> weightKg;
   final Value<String> weightUnit;
+  final Value<String> activityLevel;
+  final Value<String> profession;
+  final Value<double> workHours;
+  final Value<String> workIntensity;
+  final Value<double> sportHours;
+  final Value<String> sportIntensity;
+  final Value<double> freetimeHours;
+  final Value<String> freetimeIntensity;
+  final Value<double> sleepHours;
+  final Value<int> dailyMoveGoalCalories;
   final Value<DateTime?> lastSync;
   const UserProfileCompanion({
     this.id = const Value.absent(),
@@ -5025,6 +5348,16 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.heightCm = const Value.absent(),
     this.weightKg = const Value.absent(),
     this.weightUnit = const Value.absent(),
+    this.activityLevel = const Value.absent(),
+    this.profession = const Value.absent(),
+    this.workHours = const Value.absent(),
+    this.workIntensity = const Value.absent(),
+    this.sportHours = const Value.absent(),
+    this.sportIntensity = const Value.absent(),
+    this.freetimeHours = const Value.absent(),
+    this.freetimeIntensity = const Value.absent(),
+    this.sleepHours = const Value.absent(),
+    this.dailyMoveGoalCalories = const Value.absent(),
     this.lastSync = const Value.absent(),
   });
   UserProfileCompanion.insert({
@@ -5036,6 +5369,16 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.heightCm = const Value.absent(),
     this.weightKg = const Value.absent(),
     this.weightUnit = const Value.absent(),
+    this.activityLevel = const Value.absent(),
+    this.profession = const Value.absent(),
+    this.workHours = const Value.absent(),
+    this.workIntensity = const Value.absent(),
+    this.sportHours = const Value.absent(),
+    this.sportIntensity = const Value.absent(),
+    this.freetimeHours = const Value.absent(),
+    this.freetimeIntensity = const Value.absent(),
+    this.sleepHours = const Value.absent(),
+    this.dailyMoveGoalCalories = const Value.absent(),
     this.lastSync = const Value.absent(),
   });
   static Insertable<UserProfileData> custom({
@@ -5047,6 +5390,16 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Expression<int>? heightCm,
     Expression<double>? weightKg,
     Expression<String>? weightUnit,
+    Expression<String>? activityLevel,
+    Expression<String>? profession,
+    Expression<double>? workHours,
+    Expression<String>? workIntensity,
+    Expression<double>? sportHours,
+    Expression<String>? sportIntensity,
+    Expression<double>? freetimeHours,
+    Expression<String>? freetimeIntensity,
+    Expression<double>? sleepHours,
+    Expression<int>? dailyMoveGoalCalories,
     Expression<DateTime>? lastSync,
   }) {
     return RawValuesInsertable({
@@ -5058,6 +5411,17 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       if (heightCm != null) 'height_cm': heightCm,
       if (weightKg != null) 'weight_kg': weightKg,
       if (weightUnit != null) 'weight_unit': weightUnit,
+      if (activityLevel != null) 'activity_level': activityLevel,
+      if (profession != null) 'profession': profession,
+      if (workHours != null) 'work_hours': workHours,
+      if (workIntensity != null) 'work_intensity': workIntensity,
+      if (sportHours != null) 'sport_hours': sportHours,
+      if (sportIntensity != null) 'sport_intensity': sportIntensity,
+      if (freetimeHours != null) 'freetime_hours': freetimeHours,
+      if (freetimeIntensity != null) 'freetime_intensity': freetimeIntensity,
+      if (sleepHours != null) 'sleep_hours': sleepHours,
+      if (dailyMoveGoalCalories != null)
+        'daily_move_goal_calories': dailyMoveGoalCalories,
       if (lastSync != null) 'last_sync': lastSync,
     });
   }
@@ -5071,6 +5435,16 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       Value<int?>? heightCm,
       Value<double?>? weightKg,
       Value<String>? weightUnit,
+      Value<String>? activityLevel,
+      Value<String>? profession,
+      Value<double>? workHours,
+      Value<String>? workIntensity,
+      Value<double>? sportHours,
+      Value<String>? sportIntensity,
+      Value<double>? freetimeHours,
+      Value<String>? freetimeIntensity,
+      Value<double>? sleepHours,
+      Value<int>? dailyMoveGoalCalories,
       Value<DateTime?>? lastSync}) {
     return UserProfileCompanion(
       id: id ?? this.id,
@@ -5081,6 +5455,17 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       heightCm: heightCm ?? this.heightCm,
       weightKg: weightKg ?? this.weightKg,
       weightUnit: weightUnit ?? this.weightUnit,
+      activityLevel: activityLevel ?? this.activityLevel,
+      profession: profession ?? this.profession,
+      workHours: workHours ?? this.workHours,
+      workIntensity: workIntensity ?? this.workIntensity,
+      sportHours: sportHours ?? this.sportHours,
+      sportIntensity: sportIntensity ?? this.sportIntensity,
+      freetimeHours: freetimeHours ?? this.freetimeHours,
+      freetimeIntensity: freetimeIntensity ?? this.freetimeIntensity,
+      sleepHours: sleepHours ?? this.sleepHours,
+      dailyMoveGoalCalories:
+          dailyMoveGoalCalories ?? this.dailyMoveGoalCalories,
       lastSync: lastSync ?? this.lastSync,
     );
   }
@@ -5112,6 +5497,37 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     if (weightUnit.present) {
       map['weight_unit'] = Variable<String>(weightUnit.value);
     }
+    if (activityLevel.present) {
+      map['activity_level'] = Variable<String>(activityLevel.value);
+    }
+    if (profession.present) {
+      map['profession'] = Variable<String>(profession.value);
+    }
+    if (workHours.present) {
+      map['work_hours'] = Variable<double>(workHours.value);
+    }
+    if (workIntensity.present) {
+      map['work_intensity'] = Variable<String>(workIntensity.value);
+    }
+    if (sportHours.present) {
+      map['sport_hours'] = Variable<double>(sportHours.value);
+    }
+    if (sportIntensity.present) {
+      map['sport_intensity'] = Variable<String>(sportIntensity.value);
+    }
+    if (freetimeHours.present) {
+      map['freetime_hours'] = Variable<double>(freetimeHours.value);
+    }
+    if (freetimeIntensity.present) {
+      map['freetime_intensity'] = Variable<String>(freetimeIntensity.value);
+    }
+    if (sleepHours.present) {
+      map['sleep_hours'] = Variable<double>(sleepHours.value);
+    }
+    if (dailyMoveGoalCalories.present) {
+      map['daily_move_goal_calories'] =
+          Variable<int>(dailyMoveGoalCalories.value);
+    }
     if (lastSync.present) {
       map['last_sync'] = Variable<DateTime>(lastSync.value);
     }
@@ -5129,6 +5545,16 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
           ..write('heightCm: $heightCm, ')
           ..write('weightKg: $weightKg, ')
           ..write('weightUnit: $weightUnit, ')
+          ..write('activityLevel: $activityLevel, ')
+          ..write('profession: $profession, ')
+          ..write('workHours: $workHours, ')
+          ..write('workIntensity: $workIntensity, ')
+          ..write('sportHours: $sportHours, ')
+          ..write('sportIntensity: $sportIntensity, ')
+          ..write('freetimeHours: $freetimeHours, ')
+          ..write('freetimeIntensity: $freetimeIntensity, ')
+          ..write('sleepHours: $sleepHours, ')
+          ..write('dailyMoveGoalCalories: $dailyMoveGoalCalories, ')
           ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
@@ -9220,6 +9646,16 @@ typedef $$UserProfileTableCreateCompanionBuilder = UserProfileCompanion
   Value<int?> heightCm,
   Value<double?> weightKg,
   Value<String> weightUnit,
+  Value<String> activityLevel,
+  Value<String> profession,
+  Value<double> workHours,
+  Value<String> workIntensity,
+  Value<double> sportHours,
+  Value<String> sportIntensity,
+  Value<double> freetimeHours,
+  Value<String> freetimeIntensity,
+  Value<double> sleepHours,
+  Value<int> dailyMoveGoalCalories,
   Value<DateTime?> lastSync,
 });
 typedef $$UserProfileTableUpdateCompanionBuilder = UserProfileCompanion
@@ -9232,6 +9668,16 @@ typedef $$UserProfileTableUpdateCompanionBuilder = UserProfileCompanion
   Value<int?> heightCm,
   Value<double?> weightKg,
   Value<String> weightUnit,
+  Value<String> activityLevel,
+  Value<String> profession,
+  Value<double> workHours,
+  Value<String> workIntensity,
+  Value<double> sportHours,
+  Value<String> sportIntensity,
+  Value<double> freetimeHours,
+  Value<String> freetimeIntensity,
+  Value<double> sleepHours,
+  Value<int> dailyMoveGoalCalories,
   Value<DateTime?> lastSync,
 });
 
@@ -9267,6 +9713,39 @@ class $$UserProfileTableFilterComposer
 
   ColumnFilters<String> get weightUnit => $composableBuilder(
       column: $table.weightUnit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get activityLevel => $composableBuilder(
+      column: $table.activityLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get profession => $composableBuilder(
+      column: $table.profession, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get workHours => $composableBuilder(
+      column: $table.workHours, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get workIntensity => $composableBuilder(
+      column: $table.workIntensity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get sportHours => $composableBuilder(
+      column: $table.sportHours, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sportIntensity => $composableBuilder(
+      column: $table.sportIntensity,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get freetimeHours => $composableBuilder(
+      column: $table.freetimeHours, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get freetimeIntensity => $composableBuilder(
+      column: $table.freetimeIntensity,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get sleepHours => $composableBuilder(
+      column: $table.sleepHours, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dailyMoveGoalCalories => $composableBuilder(
+      column: $table.dailyMoveGoalCalories,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get lastSync => $composableBuilder(
       column: $table.lastSync, builder: (column) => ColumnFilters(column));
@@ -9305,6 +9784,42 @@ class $$UserProfileTableOrderingComposer
   ColumnOrderings<String> get weightUnit => $composableBuilder(
       column: $table.weightUnit, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get activityLevel => $composableBuilder(
+      column: $table.activityLevel,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get profession => $composableBuilder(
+      column: $table.profession, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get workHours => $composableBuilder(
+      column: $table.workHours, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get workIntensity => $composableBuilder(
+      column: $table.workIntensity,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get sportHours => $composableBuilder(
+      column: $table.sportHours, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sportIntensity => $composableBuilder(
+      column: $table.sportIntensity,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get freetimeHours => $composableBuilder(
+      column: $table.freetimeHours,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get freetimeIntensity => $composableBuilder(
+      column: $table.freetimeIntensity,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get sleepHours => $composableBuilder(
+      column: $table.sleepHours, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dailyMoveGoalCalories => $composableBuilder(
+      column: $table.dailyMoveGoalCalories,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get lastSync => $composableBuilder(
       column: $table.lastSync, builder: (column) => ColumnOrderings(column));
 }
@@ -9341,6 +9856,36 @@ class $$UserProfileTableAnnotationComposer
 
   GeneratedColumn<String> get weightUnit => $composableBuilder(
       column: $table.weightUnit, builder: (column) => column);
+
+  GeneratedColumn<String> get activityLevel => $composableBuilder(
+      column: $table.activityLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get profession => $composableBuilder(
+      column: $table.profession, builder: (column) => column);
+
+  GeneratedColumn<double> get workHours =>
+      $composableBuilder(column: $table.workHours, builder: (column) => column);
+
+  GeneratedColumn<String> get workIntensity => $composableBuilder(
+      column: $table.workIntensity, builder: (column) => column);
+
+  GeneratedColumn<double> get sportHours => $composableBuilder(
+      column: $table.sportHours, builder: (column) => column);
+
+  GeneratedColumn<String> get sportIntensity => $composableBuilder(
+      column: $table.sportIntensity, builder: (column) => column);
+
+  GeneratedColumn<double> get freetimeHours => $composableBuilder(
+      column: $table.freetimeHours, builder: (column) => column);
+
+  GeneratedColumn<String> get freetimeIntensity => $composableBuilder(
+      column: $table.freetimeIntensity, builder: (column) => column);
+
+  GeneratedColumn<double> get sleepHours => $composableBuilder(
+      column: $table.sleepHours, builder: (column) => column);
+
+  GeneratedColumn<int> get dailyMoveGoalCalories => $composableBuilder(
+      column: $table.dailyMoveGoalCalories, builder: (column) => column);
 
   GeneratedColumn<DateTime> get lastSync =>
       $composableBuilder(column: $table.lastSync, builder: (column) => column);
@@ -9380,6 +9925,16 @@ class $$UserProfileTableTableManager extends RootTableManager<
             Value<int?> heightCm = const Value.absent(),
             Value<double?> weightKg = const Value.absent(),
             Value<String> weightUnit = const Value.absent(),
+            Value<String> activityLevel = const Value.absent(),
+            Value<String> profession = const Value.absent(),
+            Value<double> workHours = const Value.absent(),
+            Value<String> workIntensity = const Value.absent(),
+            Value<double> sportHours = const Value.absent(),
+            Value<String> sportIntensity = const Value.absent(),
+            Value<double> freetimeHours = const Value.absent(),
+            Value<String> freetimeIntensity = const Value.absent(),
+            Value<double> sleepHours = const Value.absent(),
+            Value<int> dailyMoveGoalCalories = const Value.absent(),
             Value<DateTime?> lastSync = const Value.absent(),
           }) =>
               UserProfileCompanion(
@@ -9391,6 +9946,16 @@ class $$UserProfileTableTableManager extends RootTableManager<
             heightCm: heightCm,
             weightKg: weightKg,
             weightUnit: weightUnit,
+            activityLevel: activityLevel,
+            profession: profession,
+            workHours: workHours,
+            workIntensity: workIntensity,
+            sportHours: sportHours,
+            sportIntensity: sportIntensity,
+            freetimeHours: freetimeHours,
+            freetimeIntensity: freetimeIntensity,
+            sleepHours: sleepHours,
+            dailyMoveGoalCalories: dailyMoveGoalCalories,
             lastSync: lastSync,
           ),
           createCompanionCallback: ({
@@ -9402,6 +9967,16 @@ class $$UserProfileTableTableManager extends RootTableManager<
             Value<int?> heightCm = const Value.absent(),
             Value<double?> weightKg = const Value.absent(),
             Value<String> weightUnit = const Value.absent(),
+            Value<String> activityLevel = const Value.absent(),
+            Value<String> profession = const Value.absent(),
+            Value<double> workHours = const Value.absent(),
+            Value<String> workIntensity = const Value.absent(),
+            Value<double> sportHours = const Value.absent(),
+            Value<String> sportIntensity = const Value.absent(),
+            Value<double> freetimeHours = const Value.absent(),
+            Value<String> freetimeIntensity = const Value.absent(),
+            Value<double> sleepHours = const Value.absent(),
+            Value<int> dailyMoveGoalCalories = const Value.absent(),
             Value<DateTime?> lastSync = const Value.absent(),
           }) =>
               UserProfileCompanion.insert(
@@ -9413,6 +9988,16 @@ class $$UserProfileTableTableManager extends RootTableManager<
             heightCm: heightCm,
             weightKg: weightKg,
             weightUnit: weightUnit,
+            activityLevel: activityLevel,
+            profession: profession,
+            workHours: workHours,
+            workIntensity: workIntensity,
+            sportHours: sportHours,
+            sportIntensity: sportIntensity,
+            freetimeHours: freetimeHours,
+            freetimeIntensity: freetimeIntensity,
+            sleepHours: sleepHours,
+            dailyMoveGoalCalories: dailyMoveGoalCalories,
             lastSync: lastSync,
           ),
           withReferenceMapper: (p0) => p0

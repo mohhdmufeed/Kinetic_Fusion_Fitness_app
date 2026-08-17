@@ -177,6 +177,19 @@ class UserProfile extends Table {
   IntColumn get heightCm => integer().nullable()();
   RealColumn get weightKg => real().nullable()();
   TextColumn get weightUnit => text().withDefault(const Constant('kg'))(); // 'kg' or 'lbs'
+  
+  // Activity & Daily Move Goal fields
+  TextColumn get activityLevel => text().withDefault(const Constant('moderate'))(); // 'light', 'moderate', 'high', 'custom'
+  TextColumn get profession => text().withDefault(const Constant(''))();
+  RealColumn get workHours => real().withDefault(const Constant(8.0))();
+  TextColumn get workIntensity => text().withDefault(const Constant('low'))(); // 'low', 'medium', 'high'
+  RealColumn get sportHours => real().withDefault(const Constant(3.0))(); // per week
+  TextColumn get sportIntensity => text().withDefault(const Constant('medium'))();
+  RealColumn get freetimeHours => real().withDefault(const Constant(5.0))();
+  TextColumn get freetimeIntensity => text().withDefault(const Constant('low'))();
+  RealColumn get sleepHours => real().withDefault(const Constant(8.0))();
+  IntColumn get dailyMoveGoalCalories => integer().withDefault(const Constant(400))();
+
   DateTimeColumn get lastSync => dateTime().nullable()();
 }
 

@@ -22,6 +22,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   List<WeightEntry> _recentWeight = [];
   List<WorkoutLog> _recentLogs = [];
   List<NutritionDiaryData> _todayDiary = [];
+  UserProfileData? _userProfile;
 
   @override
   void initState() {
@@ -44,12 +45,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         from: now.subtract(const Duration(days: 7)));
     final diary = await db.getDiaryForDate(now);
     final pending = await db.getPendingSyncCount();
+    final profile = await db.getUserProfile();
     if (mounted) {
       setState(() {
         _recentWeight = weights;
         _recentLogs = logs;
         _todayDiary = diary;
         _pendingSync = pending;
+        _userProfile = profile;
       });
     }
   }
@@ -177,7 +180,47 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 16),
+
+                        // Daily Move Goal Target Card
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF26496C), Color(0xFF1b3550)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Text('🔥', style: TextStyle(fontSize: 22)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Daily Move Goal',
+                                      style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      '~${_userProfile?.dailyMoveGoalCalories ?? 400} kcal active burn target',
+                                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.tune, color: Colors.white70, size: 18),
+                                onPressed: () => context.go('/settings'),
+                                tooltip: 'Adjust in Settings',
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
                         // Quick actions
                         const SectionHeader(title: 'Quick Actions'),

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../core/database/app_database.dart';
+import '../../core/utils/move_goal_calculator.dart';
 import '../../shared/widgets/personal_info_form.dart';
+import '../../shared/widgets/activity_level_picker.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -13,31 +15,42 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _formKey = GlobalKey<FormState>();
-  PersonalInfoData _data = PersonalInfoData();
+  final _personalFormKey = GlobalKey<FormState>();
+  int _currentStep = 0; // 0 = Personal Info, 1 = Move Goal & Activity Level
+  PersonalInfoData _personalData = PersonalInfoData();
+  ActivityData _activityData = ActivityData();
   bool _saving = false;
 
-  Future<void> _saveAndContinue() async {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _saveAndFinish() async {
     setState(() => _saving = true);
 
     try {
       final db = ref.read(databaseProvider);
       await db.saveUserProfile(
         UserProfileCompanion(
-          birthDate: drift.Value(_data.birthDate),
-          sex: drift.Value(_data.sex),
-          heightCm: drift.Value(_data.heightCm),
-          weightKg: drift.Value(_data.weightKg),
-          weightUnit: drift.Value(_data.weightUnit),
+          birthDate: drift.Value(_personalData.birthDate),
+          sex: drift.Value(_personalData.sex),
+          heightCm: drift.Value(_personalData.heightCm),
+          weightKg: drift.Value(_personalData.weightKg),
+          weightUnit: drift.Value(_personalData.weightUnit),
+          activityLevel: drift.Value(_activityData.activityLevel),
+          profession: drift.Value(_activityData.profession),
+          workHours: drift.Value(_activityData.workHours),
+          workIntensity: drift.Value(_activityData.workIntensity),
+          sportHours: drift.Value(_activityData.sportHours),
+          sportIntensity: drift.Value(_activityData.sportIntensity),
+          freetimeHours: drift.Value(_activityData.freetimeHours),
+          freetimeIntensity: drift.Value(_activityData.freetimeIntensity),
+          sleepHours: drift.Value(_activityData.sleepHours),
+          dailyMoveGoalCalories: drift.Value(_activityData.calculatedMoveGoal),
         ),
       );
 
-      // If weight was provided, also log a weight entry into WeightEntries table
-      if (_data.weightKg != null && _data.weightKg! > 0) {
+      // Log initial weight entry if provided
+      if (_personalData.weightKg != null && _personalData.weightKg! > 0) {
         await db.insertWeightEntry(
           WeightEntriesCompanion.insert(
-            weight: _data.weightKg!,
+            weight: _personalData.weightKg!,
             date: drift.Value(DateTime.now()),
             notes: const drift.Value('Initial onboarding weight'),
             pendingSync: const drift.Value(true),
@@ -48,6 +61,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     if (mounted) {
       context.go('/dashboard');
+    }
+  }
+
+  void _nextStep() {
+    if (_personalFormKey.currentState!.validate()) {
+      setState(() {
+        _currentStep = 1;
+      });
     }
   }
 
@@ -64,10 +85,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text('Personal Info'),
+        title: Text(_currentStep == 0 ? 'Step 1 of 2: Personal Info' : 'Step 2 of 2: Daily Move Goal'),
         backgroundColor: navyColor,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: _currentStep > 0
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => setState(() => _currentStep = 0),
+              )
+            : null,
         actions: [
           TextButton(
             onPressed: _skip,
@@ -84,7 +111,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Card(
@@ -98,6 +125,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Header
                       Row(
                         children: [
                           Container(
@@ -106,8 +134,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               color: navyColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(
-                              Icons.person_pin,
+                            child: Icon(
+                              _currentStep == 0 ? Icons.person_pin : Icons.local_fire_department_rounded,
                               color: navyColor,
                               size: 28,
                             ),
@@ -118,14 +146,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Tell us about yourself',
+                                  _currentStep == 0
+                                      ? 'Tell us about yourself'
+                                      : 'How active are you?',
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Help us customize your fitness goals',
+                                  _currentStep == 0
+                                      ? 'Help us customize your body metrics'
+                                      : 'Set your daily active calorie burn target',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: Colors.grey.shade600,
                                   ),
@@ -135,53 +167,92 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ),
                         ],
                       ),
-                      const Divider(height: 32),
+                      const Divider(height: 28),
 
-                      // Reusable Personal Info Form
-                      PersonalInfoForm(
-                        initialData: _data,
-                        formKey: _formKey,
-                        onChanged: (updated) {
-                          _data = updated;
-                        },
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Continue Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _saving ? null : _saveAndContinue,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: navyColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                      // Step 1: Personal Info Form
+                      if (_currentStep == 0) ...[
+                        PersonalInfoForm(
+                          initialData: _personalData,
+                          formKey: _personalFormKey,
+                          onChanged: (updated) {
+                            _personalData = updated;
+                          },
+                        ),
+                        const SizedBox(height: 28),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _nextStep,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: navyColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
-                          ),
-                          child: _saving
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : const Text(
-                                  'Continue to Dashboard',
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Next: Set Daily Move Goal',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
                                 ),
+                                SizedBox(width: 8),
+                                Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
+                      ] else ...[
+                        // Step 2: Activity Level & Move Goal Picker
+                        ActivityLevelPicker(
+                          initialData: _activityData,
+                          weightKg: _personalData.weightKg ?? 70.0,
+                          heightCm: _personalData.heightCm ?? 175,
+                          birthDate: _personalData.birthDate,
+                          sex: _personalData.sex,
+                          onChanged: (updated) {
+                            _activityData = updated;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _saving ? null : _saveAndFinish,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: navyColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: _saving
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Finish Setup & Open GetFit',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
 
-                      // Skip for now link
+                      const SizedBox(height: 12),
                       Center(
                         child: TextButton(
                           onPressed: _skip,
