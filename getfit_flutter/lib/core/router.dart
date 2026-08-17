@@ -22,6 +22,8 @@ import '../features/categories/screens/categories_hub_screen.dart';
 import '../features/categories/screens/category_report_screen.dart';
 import '../features/categories/screens/trainer_tips_screen.dart';
 import '../features/categories/screens/trends_dashboard_screen.dart';
+import '../features/live_session/screens/live_workout_screen.dart';
+import '../features/wishlist/screens/wishlist_screen.dart';
 import '../shared/widgets/main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -47,6 +49,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/run-tracker', builder: (_, __) => const RunTrackerScreen()),
+      GoRoute(
+        path: '/live-session/:type',
+        builder: (_, state) => LiveWorkoutScreen(
+          activityType: state.pathParameters['type'] ?? 'running',
+          wishlistId: int.tryParse(state.uri.queryParameters['wishlistId'] ?? ''),
+        ),
+      ),
+      GoRoute(path: '/wishlist', builder: (_, __) => const WishlistScreen()),
       GoRoute(
         path: '/categories/report/:type',
         builder: (_, state) => CategoryReportScreen(

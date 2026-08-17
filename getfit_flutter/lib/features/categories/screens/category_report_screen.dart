@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:drift/drift.dart' as drift;
 import '../../../core/database/app_database.dart';
@@ -436,12 +437,27 @@ class _CategoryReportScreenState extends ConsumerState<CategoryReportScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openLogModal,
-        backgroundColor: _config.color,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('Log ${_config.title}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
+      floatingActionButton: _config.hasDistance
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                context.push('/live-session/${widget.activityType}');
+              },
+              backgroundColor: _config.color,
+              icon: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 28),
+              label: Text(
+                'Start ${_config.title}',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+            )
+          : FloatingActionButton.extended(
+              onPressed: _openLogModal,
+              backgroundColor: _config.color,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: Text(
+                'Log ${_config.title}',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
     );
   }
 

@@ -6689,6 +6689,14 @@ class $ActivityEntriesTable extends ActivityEntries
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _pausedDurationSecondsMeta =
+      const VerificationMeta('pausedDurationSeconds');
+  @override
+  late final GeneratedColumn<int> pausedDurationSeconds = GeneratedColumn<int>(
+      'paused_duration_seconds', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _distanceMetersMeta =
       const VerificationMeta('distanceMeters');
   @override
@@ -6728,6 +6736,16 @@ class $ActivityEntriesTable extends ActivityEntries
   late final GeneratedColumn<String> moodNotes = GeneratedColumn<String>(
       'mood_notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isFavoriteMeta =
+      const VerificationMeta('isFavorite');
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+      'is_favorite', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_favorite" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _pendingSyncMeta =
       const VerificationMeta('pendingSync');
   @override
@@ -6745,12 +6763,14 @@ class $ActivityEntriesTable extends ActivityEntries
         date,
         startTime,
         durationSeconds,
+        pausedDurationSeconds,
         distanceMeters,
         routePointsJson,
         laps,
         poolLengthMeters,
         caloriesBurned,
         moodNotes,
+        isFavorite,
         pendingSync
       ];
   @override
@@ -6792,6 +6812,12 @@ class $ActivityEntriesTable extends ActivityEntries
           durationSeconds.isAcceptableOrUnknown(
               data['duration_seconds']!, _durationSecondsMeta));
     }
+    if (data.containsKey('paused_duration_seconds')) {
+      context.handle(
+          _pausedDurationSecondsMeta,
+          pausedDurationSeconds.isAcceptableOrUnknown(
+              data['paused_duration_seconds']!, _pausedDurationSecondsMeta));
+    }
     if (data.containsKey('distance_meters')) {
       context.handle(
           _distanceMetersMeta,
@@ -6824,6 +6850,12 @@ class $ActivityEntriesTable extends ActivityEntries
       context.handle(_moodNotesMeta,
           moodNotes.isAcceptableOrUnknown(data['mood_notes']!, _moodNotesMeta));
     }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+          _isFavoriteMeta,
+          isFavorite.isAcceptableOrUnknown(
+              data['is_favorite']!, _isFavoriteMeta));
+    }
     if (data.containsKey('pending_sync')) {
       context.handle(
           _pendingSyncMeta,
@@ -6849,6 +6881,8 @@ class $ActivityEntriesTable extends ActivityEntries
           .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
       durationSeconds: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}duration_seconds'])!,
+      pausedDurationSeconds: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}paused_duration_seconds'])!,
       distanceMeters: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}distance_meters']),
       routePointsJson: attachedDatabase.typeMapping.read(
@@ -6861,6 +6895,8 @@ class $ActivityEntriesTable extends ActivityEntries
           DriftSqlType.double, data['${effectivePrefix}calories_burned'])!,
       moodNotes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}mood_notes']),
+      isFavorite: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_favorite'])!,
       pendingSync: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}pending_sync'])!,
     );
@@ -6878,12 +6914,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
   final DateTime date;
   final DateTime startTime;
   final int durationSeconds;
+  final int pausedDurationSeconds;
   final double? distanceMeters;
   final String routePointsJson;
   final int? laps;
   final int? poolLengthMeters;
   final double caloriesBurned;
   final String? moodNotes;
+  final bool isFavorite;
   final bool pendingSync;
   const ActivityEntry(
       {required this.id,
@@ -6891,12 +6929,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       required this.date,
       required this.startTime,
       required this.durationSeconds,
+      required this.pausedDurationSeconds,
       this.distanceMeters,
       required this.routePointsJson,
       this.laps,
       this.poolLengthMeters,
       required this.caloriesBurned,
       this.moodNotes,
+      required this.isFavorite,
       required this.pendingSync});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6906,6 +6946,7 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
     map['date'] = Variable<DateTime>(date);
     map['start_time'] = Variable<DateTime>(startTime);
     map['duration_seconds'] = Variable<int>(durationSeconds);
+    map['paused_duration_seconds'] = Variable<int>(pausedDurationSeconds);
     if (!nullToAbsent || distanceMeters != null) {
       map['distance_meters'] = Variable<double>(distanceMeters);
     }
@@ -6920,6 +6961,7 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
     if (!nullToAbsent || moodNotes != null) {
       map['mood_notes'] = Variable<String>(moodNotes);
     }
+    map['is_favorite'] = Variable<bool>(isFavorite);
     map['pending_sync'] = Variable<bool>(pendingSync);
     return map;
   }
@@ -6931,6 +6973,7 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       date: Value(date),
       startTime: Value(startTime),
       durationSeconds: Value(durationSeconds),
+      pausedDurationSeconds: Value(pausedDurationSeconds),
       distanceMeters: distanceMeters == null && nullToAbsent
           ? const Value.absent()
           : Value(distanceMeters),
@@ -6943,6 +6986,7 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       moodNotes: moodNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(moodNotes),
+      isFavorite: Value(isFavorite),
       pendingSync: Value(pendingSync),
     );
   }
@@ -6956,12 +7000,15 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       date: serializer.fromJson<DateTime>(json['date']),
       startTime: serializer.fromJson<DateTime>(json['startTime']),
       durationSeconds: serializer.fromJson<int>(json['durationSeconds']),
+      pausedDurationSeconds:
+          serializer.fromJson<int>(json['pausedDurationSeconds']),
       distanceMeters: serializer.fromJson<double?>(json['distanceMeters']),
       routePointsJson: serializer.fromJson<String>(json['routePointsJson']),
       laps: serializer.fromJson<int?>(json['laps']),
       poolLengthMeters: serializer.fromJson<int?>(json['poolLengthMeters']),
       caloriesBurned: serializer.fromJson<double>(json['caloriesBurned']),
       moodNotes: serializer.fromJson<String?>(json['moodNotes']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
       pendingSync: serializer.fromJson<bool>(json['pendingSync']),
     );
   }
@@ -6974,12 +7021,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       'date': serializer.toJson<DateTime>(date),
       'startTime': serializer.toJson<DateTime>(startTime),
       'durationSeconds': serializer.toJson<int>(durationSeconds),
+      'pausedDurationSeconds': serializer.toJson<int>(pausedDurationSeconds),
       'distanceMeters': serializer.toJson<double?>(distanceMeters),
       'routePointsJson': serializer.toJson<String>(routePointsJson),
       'laps': serializer.toJson<int?>(laps),
       'poolLengthMeters': serializer.toJson<int?>(poolLengthMeters),
       'caloriesBurned': serializer.toJson<double>(caloriesBurned),
       'moodNotes': serializer.toJson<String?>(moodNotes),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
       'pendingSync': serializer.toJson<bool>(pendingSync),
     };
   }
@@ -6990,12 +7039,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
           DateTime? date,
           DateTime? startTime,
           int? durationSeconds,
+          int? pausedDurationSeconds,
           Value<double?> distanceMeters = const Value.absent(),
           String? routePointsJson,
           Value<int?> laps = const Value.absent(),
           Value<int?> poolLengthMeters = const Value.absent(),
           double? caloriesBurned,
           Value<String?> moodNotes = const Value.absent(),
+          bool? isFavorite,
           bool? pendingSync}) =>
       ActivityEntry(
         id: id ?? this.id,
@@ -7003,6 +7054,8 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
         date: date ?? this.date,
         startTime: startTime ?? this.startTime,
         durationSeconds: durationSeconds ?? this.durationSeconds,
+        pausedDurationSeconds:
+            pausedDurationSeconds ?? this.pausedDurationSeconds,
         distanceMeters:
             distanceMeters.present ? distanceMeters.value : this.distanceMeters,
         routePointsJson: routePointsJson ?? this.routePointsJson,
@@ -7012,6 +7065,7 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
             : this.poolLengthMeters,
         caloriesBurned: caloriesBurned ?? this.caloriesBurned,
         moodNotes: moodNotes.present ? moodNotes.value : this.moodNotes,
+        isFavorite: isFavorite ?? this.isFavorite,
         pendingSync: pendingSync ?? this.pendingSync,
       );
   ActivityEntry copyWithCompanion(ActivityEntriesCompanion data) {
@@ -7025,6 +7079,9 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       durationSeconds: data.durationSeconds.present
           ? data.durationSeconds.value
           : this.durationSeconds,
+      pausedDurationSeconds: data.pausedDurationSeconds.present
+          ? data.pausedDurationSeconds.value
+          : this.pausedDurationSeconds,
       distanceMeters: data.distanceMeters.present
           ? data.distanceMeters.value
           : this.distanceMeters,
@@ -7039,6 +7096,8 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
           ? data.caloriesBurned.value
           : this.caloriesBurned,
       moodNotes: data.moodNotes.present ? data.moodNotes.value : this.moodNotes,
+      isFavorite:
+          data.isFavorite.present ? data.isFavorite.value : this.isFavorite,
       pendingSync:
           data.pendingSync.present ? data.pendingSync.value : this.pendingSync,
     );
@@ -7052,12 +7111,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
           ..write('date: $date, ')
           ..write('startTime: $startTime, ')
           ..write('durationSeconds: $durationSeconds, ')
+          ..write('pausedDurationSeconds: $pausedDurationSeconds, ')
           ..write('distanceMeters: $distanceMeters, ')
           ..write('routePointsJson: $routePointsJson, ')
           ..write('laps: $laps, ')
           ..write('poolLengthMeters: $poolLengthMeters, ')
           ..write('caloriesBurned: $caloriesBurned, ')
           ..write('moodNotes: $moodNotes, ')
+          ..write('isFavorite: $isFavorite, ')
           ..write('pendingSync: $pendingSync')
           ..write(')'))
         .toString();
@@ -7070,12 +7131,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
       date,
       startTime,
       durationSeconds,
+      pausedDurationSeconds,
       distanceMeters,
       routePointsJson,
       laps,
       poolLengthMeters,
       caloriesBurned,
       moodNotes,
+      isFavorite,
       pendingSync);
   @override
   bool operator ==(Object other) =>
@@ -7086,12 +7149,14 @@ class ActivityEntry extends DataClass implements Insertable<ActivityEntry> {
           other.date == this.date &&
           other.startTime == this.startTime &&
           other.durationSeconds == this.durationSeconds &&
+          other.pausedDurationSeconds == this.pausedDurationSeconds &&
           other.distanceMeters == this.distanceMeters &&
           other.routePointsJson == this.routePointsJson &&
           other.laps == this.laps &&
           other.poolLengthMeters == this.poolLengthMeters &&
           other.caloriesBurned == this.caloriesBurned &&
           other.moodNotes == this.moodNotes &&
+          other.isFavorite == this.isFavorite &&
           other.pendingSync == this.pendingSync);
 }
 
@@ -7101,12 +7166,14 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
   final Value<DateTime> date;
   final Value<DateTime> startTime;
   final Value<int> durationSeconds;
+  final Value<int> pausedDurationSeconds;
   final Value<double?> distanceMeters;
   final Value<String> routePointsJson;
   final Value<int?> laps;
   final Value<int?> poolLengthMeters;
   final Value<double> caloriesBurned;
   final Value<String?> moodNotes;
+  final Value<bool> isFavorite;
   final Value<bool> pendingSync;
   const ActivityEntriesCompanion({
     this.id = const Value.absent(),
@@ -7114,12 +7181,14 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
     this.date = const Value.absent(),
     this.startTime = const Value.absent(),
     this.durationSeconds = const Value.absent(),
+    this.pausedDurationSeconds = const Value.absent(),
     this.distanceMeters = const Value.absent(),
     this.routePointsJson = const Value.absent(),
     this.laps = const Value.absent(),
     this.poolLengthMeters = const Value.absent(),
     this.caloriesBurned = const Value.absent(),
     this.moodNotes = const Value.absent(),
+    this.isFavorite = const Value.absent(),
     this.pendingSync = const Value.absent(),
   });
   ActivityEntriesCompanion.insert({
@@ -7128,12 +7197,14 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
     required DateTime date,
     required DateTime startTime,
     this.durationSeconds = const Value.absent(),
+    this.pausedDurationSeconds = const Value.absent(),
     this.distanceMeters = const Value.absent(),
     this.routePointsJson = const Value.absent(),
     this.laps = const Value.absent(),
     this.poolLengthMeters = const Value.absent(),
     this.caloriesBurned = const Value.absent(),
     this.moodNotes = const Value.absent(),
+    this.isFavorite = const Value.absent(),
     this.pendingSync = const Value.absent(),
   })  : activityType = Value(activityType),
         date = Value(date),
@@ -7144,12 +7215,14 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
     Expression<DateTime>? date,
     Expression<DateTime>? startTime,
     Expression<int>? durationSeconds,
+    Expression<int>? pausedDurationSeconds,
     Expression<double>? distanceMeters,
     Expression<String>? routePointsJson,
     Expression<int>? laps,
     Expression<int>? poolLengthMeters,
     Expression<double>? caloriesBurned,
     Expression<String>? moodNotes,
+    Expression<bool>? isFavorite,
     Expression<bool>? pendingSync,
   }) {
     return RawValuesInsertable({
@@ -7158,12 +7231,15 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
       if (date != null) 'date': date,
       if (startTime != null) 'start_time': startTime,
       if (durationSeconds != null) 'duration_seconds': durationSeconds,
+      if (pausedDurationSeconds != null)
+        'paused_duration_seconds': pausedDurationSeconds,
       if (distanceMeters != null) 'distance_meters': distanceMeters,
       if (routePointsJson != null) 'route_points_json': routePointsJson,
       if (laps != null) 'laps': laps,
       if (poolLengthMeters != null) 'pool_length_meters': poolLengthMeters,
       if (caloriesBurned != null) 'calories_burned': caloriesBurned,
       if (moodNotes != null) 'mood_notes': moodNotes,
+      if (isFavorite != null) 'is_favorite': isFavorite,
       if (pendingSync != null) 'pending_sync': pendingSync,
     });
   }
@@ -7174,12 +7250,14 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
       Value<DateTime>? date,
       Value<DateTime>? startTime,
       Value<int>? durationSeconds,
+      Value<int>? pausedDurationSeconds,
       Value<double?>? distanceMeters,
       Value<String>? routePointsJson,
       Value<int?>? laps,
       Value<int?>? poolLengthMeters,
       Value<double>? caloriesBurned,
       Value<String?>? moodNotes,
+      Value<bool>? isFavorite,
       Value<bool>? pendingSync}) {
     return ActivityEntriesCompanion(
       id: id ?? this.id,
@@ -7187,12 +7265,15 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
       date: date ?? this.date,
       startTime: startTime ?? this.startTime,
       durationSeconds: durationSeconds ?? this.durationSeconds,
+      pausedDurationSeconds:
+          pausedDurationSeconds ?? this.pausedDurationSeconds,
       distanceMeters: distanceMeters ?? this.distanceMeters,
       routePointsJson: routePointsJson ?? this.routePointsJson,
       laps: laps ?? this.laps,
       poolLengthMeters: poolLengthMeters ?? this.poolLengthMeters,
       caloriesBurned: caloriesBurned ?? this.caloriesBurned,
       moodNotes: moodNotes ?? this.moodNotes,
+      isFavorite: isFavorite ?? this.isFavorite,
       pendingSync: pendingSync ?? this.pendingSync,
     );
   }
@@ -7215,6 +7296,10 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
     if (durationSeconds.present) {
       map['duration_seconds'] = Variable<int>(durationSeconds.value);
     }
+    if (pausedDurationSeconds.present) {
+      map['paused_duration_seconds'] =
+          Variable<int>(pausedDurationSeconds.value);
+    }
     if (distanceMeters.present) {
       map['distance_meters'] = Variable<double>(distanceMeters.value);
     }
@@ -7233,6 +7318,9 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
     if (moodNotes.present) {
       map['mood_notes'] = Variable<String>(moodNotes.value);
     }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
     if (pendingSync.present) {
       map['pending_sync'] = Variable<bool>(pendingSync.value);
     }
@@ -7247,12 +7335,456 @@ class ActivityEntriesCompanion extends UpdateCompanion<ActivityEntry> {
           ..write('date: $date, ')
           ..write('startTime: $startTime, ')
           ..write('durationSeconds: $durationSeconds, ')
+          ..write('pausedDurationSeconds: $pausedDurationSeconds, ')
           ..write('distanceMeters: $distanceMeters, ')
           ..write('routePointsJson: $routePointsJson, ')
           ..write('laps: $laps, ')
           ..write('poolLengthMeters: $poolLengthMeters, ')
           ..write('caloriesBurned: $caloriesBurned, ')
           ..write('moodNotes: $moodNotes, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('pendingSync: $pendingSync')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WishlistItemsTable extends WishlistItems
+    with TableInfo<$WishlistItemsTable, WishlistItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WishlistItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _activityTypeMeta =
+      const VerificationMeta('activityType');
+  @override
+  late final GeneratedColumn<String> activityType = GeneratedColumn<String>(
+      'activity_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _targetDateMeta =
+      const VerificationMeta('targetDate');
+  @override
+  late final GeneratedColumn<DateTime> targetDate = GeneratedColumn<DateTime>(
+      'target_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _isCompletedMeta =
+      const VerificationMeta('isCompleted');
+  @override
+  late final GeneratedColumn<bool> isCompleted = GeneratedColumn<bool>(
+      'is_completed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_completed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _completedActivityIdMeta =
+      const VerificationMeta('completedActivityId');
+  @override
+  late final GeneratedColumn<int> completedActivityId = GeneratedColumn<int>(
+      'completed_activity_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _pendingSyncMeta =
+      const VerificationMeta('pendingSync');
+  @override
+  late final GeneratedColumn<bool> pendingSync = GeneratedColumn<bool>(
+      'pending_sync', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("pending_sync" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        activityType,
+        title,
+        notes,
+        targetDate,
+        isCompleted,
+        completedActivityId,
+        pendingSync
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'wishlist_items';
+  @override
+  VerificationContext validateIntegrity(Insertable<WishlistItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('activity_type')) {
+      context.handle(
+          _activityTypeMeta,
+          activityType.isAcceptableOrUnknown(
+              data['activity_type']!, _activityTypeMeta));
+    } else if (isInserting) {
+      context.missing(_activityTypeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('target_date')) {
+      context.handle(
+          _targetDateMeta,
+          targetDate.isAcceptableOrUnknown(
+              data['target_date']!, _targetDateMeta));
+    }
+    if (data.containsKey('is_completed')) {
+      context.handle(
+          _isCompletedMeta,
+          isCompleted.isAcceptableOrUnknown(
+              data['is_completed']!, _isCompletedMeta));
+    }
+    if (data.containsKey('completed_activity_id')) {
+      context.handle(
+          _completedActivityIdMeta,
+          completedActivityId.isAcceptableOrUnknown(
+              data['completed_activity_id']!, _completedActivityIdMeta));
+    }
+    if (data.containsKey('pending_sync')) {
+      context.handle(
+          _pendingSyncMeta,
+          pendingSync.isAcceptableOrUnknown(
+              data['pending_sync']!, _pendingSyncMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WishlistItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WishlistItem(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      activityType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}activity_type'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      targetDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}target_date']),
+      isCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_completed'])!,
+      completedActivityId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}completed_activity_id']),
+      pendingSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}pending_sync'])!,
+    );
+  }
+
+  @override
+  $WishlistItemsTable createAlias(String alias) {
+    return $WishlistItemsTable(attachedDatabase, alias);
+  }
+}
+
+class WishlistItem extends DataClass implements Insertable<WishlistItem> {
+  final int id;
+  final String activityType;
+  final String title;
+  final String? notes;
+  final DateTime? targetDate;
+  final bool isCompleted;
+  final int? completedActivityId;
+  final bool pendingSync;
+  const WishlistItem(
+      {required this.id,
+      required this.activityType,
+      required this.title,
+      this.notes,
+      this.targetDate,
+      required this.isCompleted,
+      this.completedActivityId,
+      required this.pendingSync});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['activity_type'] = Variable<String>(activityType);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || targetDate != null) {
+      map['target_date'] = Variable<DateTime>(targetDate);
+    }
+    map['is_completed'] = Variable<bool>(isCompleted);
+    if (!nullToAbsent || completedActivityId != null) {
+      map['completed_activity_id'] = Variable<int>(completedActivityId);
+    }
+    map['pending_sync'] = Variable<bool>(pendingSync);
+    return map;
+  }
+
+  WishlistItemsCompanion toCompanion(bool nullToAbsent) {
+    return WishlistItemsCompanion(
+      id: Value(id),
+      activityType: Value(activityType),
+      title: Value(title),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      targetDate: targetDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetDate),
+      isCompleted: Value(isCompleted),
+      completedActivityId: completedActivityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedActivityId),
+      pendingSync: Value(pendingSync),
+    );
+  }
+
+  factory WishlistItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WishlistItem(
+      id: serializer.fromJson<int>(json['id']),
+      activityType: serializer.fromJson<String>(json['activityType']),
+      title: serializer.fromJson<String>(json['title']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      targetDate: serializer.fromJson<DateTime?>(json['targetDate']),
+      isCompleted: serializer.fromJson<bool>(json['isCompleted']),
+      completedActivityId:
+          serializer.fromJson<int?>(json['completedActivityId']),
+      pendingSync: serializer.fromJson<bool>(json['pendingSync']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'activityType': serializer.toJson<String>(activityType),
+      'title': serializer.toJson<String>(title),
+      'notes': serializer.toJson<String?>(notes),
+      'targetDate': serializer.toJson<DateTime?>(targetDate),
+      'isCompleted': serializer.toJson<bool>(isCompleted),
+      'completedActivityId': serializer.toJson<int?>(completedActivityId),
+      'pendingSync': serializer.toJson<bool>(pendingSync),
+    };
+  }
+
+  WishlistItem copyWith(
+          {int? id,
+          String? activityType,
+          String? title,
+          Value<String?> notes = const Value.absent(),
+          Value<DateTime?> targetDate = const Value.absent(),
+          bool? isCompleted,
+          Value<int?> completedActivityId = const Value.absent(),
+          bool? pendingSync}) =>
+      WishlistItem(
+        id: id ?? this.id,
+        activityType: activityType ?? this.activityType,
+        title: title ?? this.title,
+        notes: notes.present ? notes.value : this.notes,
+        targetDate: targetDate.present ? targetDate.value : this.targetDate,
+        isCompleted: isCompleted ?? this.isCompleted,
+        completedActivityId: completedActivityId.present
+            ? completedActivityId.value
+            : this.completedActivityId,
+        pendingSync: pendingSync ?? this.pendingSync,
+      );
+  WishlistItem copyWithCompanion(WishlistItemsCompanion data) {
+    return WishlistItem(
+      id: data.id.present ? data.id.value : this.id,
+      activityType: data.activityType.present
+          ? data.activityType.value
+          : this.activityType,
+      title: data.title.present ? data.title.value : this.title,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      targetDate:
+          data.targetDate.present ? data.targetDate.value : this.targetDate,
+      isCompleted:
+          data.isCompleted.present ? data.isCompleted.value : this.isCompleted,
+      completedActivityId: data.completedActivityId.present
+          ? data.completedActivityId.value
+          : this.completedActivityId,
+      pendingSync:
+          data.pendingSync.present ? data.pendingSync.value : this.pendingSync,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WishlistItem(')
+          ..write('id: $id, ')
+          ..write('activityType: $activityType, ')
+          ..write('title: $title, ')
+          ..write('notes: $notes, ')
+          ..write('targetDate: $targetDate, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('completedActivityId: $completedActivityId, ')
+          ..write('pendingSync: $pendingSync')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, activityType, title, notes, targetDate,
+      isCompleted, completedActivityId, pendingSync);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WishlistItem &&
+          other.id == this.id &&
+          other.activityType == this.activityType &&
+          other.title == this.title &&
+          other.notes == this.notes &&
+          other.targetDate == this.targetDate &&
+          other.isCompleted == this.isCompleted &&
+          other.completedActivityId == this.completedActivityId &&
+          other.pendingSync == this.pendingSync);
+}
+
+class WishlistItemsCompanion extends UpdateCompanion<WishlistItem> {
+  final Value<int> id;
+  final Value<String> activityType;
+  final Value<String> title;
+  final Value<String?> notes;
+  final Value<DateTime?> targetDate;
+  final Value<bool> isCompleted;
+  final Value<int?> completedActivityId;
+  final Value<bool> pendingSync;
+  const WishlistItemsCompanion({
+    this.id = const Value.absent(),
+    this.activityType = const Value.absent(),
+    this.title = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.targetDate = const Value.absent(),
+    this.isCompleted = const Value.absent(),
+    this.completedActivityId = const Value.absent(),
+    this.pendingSync = const Value.absent(),
+  });
+  WishlistItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required String activityType,
+    required String title,
+    this.notes = const Value.absent(),
+    this.targetDate = const Value.absent(),
+    this.isCompleted = const Value.absent(),
+    this.completedActivityId = const Value.absent(),
+    this.pendingSync = const Value.absent(),
+  })  : activityType = Value(activityType),
+        title = Value(title);
+  static Insertable<WishlistItem> custom({
+    Expression<int>? id,
+    Expression<String>? activityType,
+    Expression<String>? title,
+    Expression<String>? notes,
+    Expression<DateTime>? targetDate,
+    Expression<bool>? isCompleted,
+    Expression<int>? completedActivityId,
+    Expression<bool>? pendingSync,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (activityType != null) 'activity_type': activityType,
+      if (title != null) 'title': title,
+      if (notes != null) 'notes': notes,
+      if (targetDate != null) 'target_date': targetDate,
+      if (isCompleted != null) 'is_completed': isCompleted,
+      if (completedActivityId != null)
+        'completed_activity_id': completedActivityId,
+      if (pendingSync != null) 'pending_sync': pendingSync,
+    });
+  }
+
+  WishlistItemsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? activityType,
+      Value<String>? title,
+      Value<String?>? notes,
+      Value<DateTime?>? targetDate,
+      Value<bool>? isCompleted,
+      Value<int?>? completedActivityId,
+      Value<bool>? pendingSync}) {
+    return WishlistItemsCompanion(
+      id: id ?? this.id,
+      activityType: activityType ?? this.activityType,
+      title: title ?? this.title,
+      notes: notes ?? this.notes,
+      targetDate: targetDate ?? this.targetDate,
+      isCompleted: isCompleted ?? this.isCompleted,
+      completedActivityId: completedActivityId ?? this.completedActivityId,
+      pendingSync: pendingSync ?? this.pendingSync,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (activityType.present) {
+      map['activity_type'] = Variable<String>(activityType.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (targetDate.present) {
+      map['target_date'] = Variable<DateTime>(targetDate.value);
+    }
+    if (isCompleted.present) {
+      map['is_completed'] = Variable<bool>(isCompleted.value);
+    }
+    if (completedActivityId.present) {
+      map['completed_activity_id'] = Variable<int>(completedActivityId.value);
+    }
+    if (pendingSync.present) {
+      map['pending_sync'] = Variable<bool>(pendingSync.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WishlistItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('activityType: $activityType, ')
+          ..write('title: $title, ')
+          ..write('notes: $notes, ')
+          ..write('targetDate: $targetDate, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('completedActivityId: $completedActivityId, ')
           ..write('pendingSync: $pendingSync')
           ..write(')'))
         .toString();
@@ -7282,6 +7814,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RunSessionsTable runSessions = $RunSessionsTable(this);
   late final $ActivityEntriesTable activityEntries =
       $ActivityEntriesTable(this);
+  late final $WishlistItemsTable wishlistItems = $WishlistItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7303,7 +7836,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         userProfile,
         dailyStepEntries,
         runSessions,
-        activityEntries
+        activityEntries,
+        wishlistItems
       ];
 }
 
@@ -12252,12 +12786,14 @@ typedef $$ActivityEntriesTableCreateCompanionBuilder = ActivityEntriesCompanion
   required DateTime date,
   required DateTime startTime,
   Value<int> durationSeconds,
+  Value<int> pausedDurationSeconds,
   Value<double?> distanceMeters,
   Value<String> routePointsJson,
   Value<int?> laps,
   Value<int?> poolLengthMeters,
   Value<double> caloriesBurned,
   Value<String?> moodNotes,
+  Value<bool> isFavorite,
   Value<bool> pendingSync,
 });
 typedef $$ActivityEntriesTableUpdateCompanionBuilder = ActivityEntriesCompanion
@@ -12267,12 +12803,14 @@ typedef $$ActivityEntriesTableUpdateCompanionBuilder = ActivityEntriesCompanion
   Value<DateTime> date,
   Value<DateTime> startTime,
   Value<int> durationSeconds,
+  Value<int> pausedDurationSeconds,
   Value<double?> distanceMeters,
   Value<String> routePointsJson,
   Value<int?> laps,
   Value<int?> poolLengthMeters,
   Value<double> caloriesBurned,
   Value<String?> moodNotes,
+  Value<bool> isFavorite,
   Value<bool> pendingSync,
 });
 
@@ -12301,6 +12839,10 @@ class $$ActivityEntriesTableFilterComposer
       column: $table.durationSeconds,
       builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<int> get pausedDurationSeconds => $composableBuilder(
+      column: $table.pausedDurationSeconds,
+      builder: (column) => ColumnFilters(column));
+
   ColumnFilters<double> get distanceMeters => $composableBuilder(
       column: $table.distanceMeters,
       builder: (column) => ColumnFilters(column));
@@ -12322,6 +12864,9 @@ class $$ActivityEntriesTableFilterComposer
 
   ColumnFilters<String> get moodNotes => $composableBuilder(
       column: $table.moodNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+      column: $table.isFavorite, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get pendingSync => $composableBuilder(
       column: $table.pendingSync, builder: (column) => ColumnFilters(column));
@@ -12353,6 +12898,10 @@ class $$ActivityEntriesTableOrderingComposer
       column: $table.durationSeconds,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get pausedDurationSeconds => $composableBuilder(
+      column: $table.pausedDurationSeconds,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get distanceMeters => $composableBuilder(
       column: $table.distanceMeters,
       builder: (column) => ColumnOrderings(column));
@@ -12374,6 +12923,9 @@ class $$ActivityEntriesTableOrderingComposer
 
   ColumnOrderings<String> get moodNotes => $composableBuilder(
       column: $table.moodNotes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+      column: $table.isFavorite, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get pendingSync => $composableBuilder(
       column: $table.pendingSync, builder: (column) => ColumnOrderings(column));
@@ -12403,6 +12955,9 @@ class $$ActivityEntriesTableAnnotationComposer
   GeneratedColumn<int> get durationSeconds => $composableBuilder(
       column: $table.durationSeconds, builder: (column) => column);
 
+  GeneratedColumn<int> get pausedDurationSeconds => $composableBuilder(
+      column: $table.pausedDurationSeconds, builder: (column) => column);
+
   GeneratedColumn<double> get distanceMeters => $composableBuilder(
       column: $table.distanceMeters, builder: (column) => column);
 
@@ -12420,6 +12975,9 @@ class $$ActivityEntriesTableAnnotationComposer
 
   GeneratedColumn<String> get moodNotes =>
       $composableBuilder(column: $table.moodNotes, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+      column: $table.isFavorite, builder: (column) => column);
 
   GeneratedColumn<bool> get pendingSync => $composableBuilder(
       column: $table.pendingSync, builder: (column) => column);
@@ -12457,12 +13015,14 @@ class $$ActivityEntriesTableTableManager extends RootTableManager<
             Value<DateTime> date = const Value.absent(),
             Value<DateTime> startTime = const Value.absent(),
             Value<int> durationSeconds = const Value.absent(),
+            Value<int> pausedDurationSeconds = const Value.absent(),
             Value<double?> distanceMeters = const Value.absent(),
             Value<String> routePointsJson = const Value.absent(),
             Value<int?> laps = const Value.absent(),
             Value<int?> poolLengthMeters = const Value.absent(),
             Value<double> caloriesBurned = const Value.absent(),
             Value<String?> moodNotes = const Value.absent(),
+            Value<bool> isFavorite = const Value.absent(),
             Value<bool> pendingSync = const Value.absent(),
           }) =>
               ActivityEntriesCompanion(
@@ -12471,12 +13031,14 @@ class $$ActivityEntriesTableTableManager extends RootTableManager<
             date: date,
             startTime: startTime,
             durationSeconds: durationSeconds,
+            pausedDurationSeconds: pausedDurationSeconds,
             distanceMeters: distanceMeters,
             routePointsJson: routePointsJson,
             laps: laps,
             poolLengthMeters: poolLengthMeters,
             caloriesBurned: caloriesBurned,
             moodNotes: moodNotes,
+            isFavorite: isFavorite,
             pendingSync: pendingSync,
           ),
           createCompanionCallback: ({
@@ -12485,12 +13047,14 @@ class $$ActivityEntriesTableTableManager extends RootTableManager<
             required DateTime date,
             required DateTime startTime,
             Value<int> durationSeconds = const Value.absent(),
+            Value<int> pausedDurationSeconds = const Value.absent(),
             Value<double?> distanceMeters = const Value.absent(),
             Value<String> routePointsJson = const Value.absent(),
             Value<int?> laps = const Value.absent(),
             Value<int?> poolLengthMeters = const Value.absent(),
             Value<double> caloriesBurned = const Value.absent(),
             Value<String?> moodNotes = const Value.absent(),
+            Value<bool> isFavorite = const Value.absent(),
             Value<bool> pendingSync = const Value.absent(),
           }) =>
               ActivityEntriesCompanion.insert(
@@ -12499,12 +13063,14 @@ class $$ActivityEntriesTableTableManager extends RootTableManager<
             date: date,
             startTime: startTime,
             durationSeconds: durationSeconds,
+            pausedDurationSeconds: pausedDurationSeconds,
             distanceMeters: distanceMeters,
             routePointsJson: routePointsJson,
             laps: laps,
             poolLengthMeters: poolLengthMeters,
             caloriesBurned: caloriesBurned,
             moodNotes: moodNotes,
+            isFavorite: isFavorite,
             pendingSync: pendingSync,
           ),
           withReferenceMapper: (p0) => p0
@@ -12528,6 +13094,221 @@ typedef $$ActivityEntriesTableProcessedTableManager = ProcessedTableManager<
       BaseReferences<_$AppDatabase, $ActivityEntriesTable, ActivityEntry>
     ),
     ActivityEntry,
+    PrefetchHooks Function()>;
+typedef $$WishlistItemsTableCreateCompanionBuilder = WishlistItemsCompanion
+    Function({
+  Value<int> id,
+  required String activityType,
+  required String title,
+  Value<String?> notes,
+  Value<DateTime?> targetDate,
+  Value<bool> isCompleted,
+  Value<int?> completedActivityId,
+  Value<bool> pendingSync,
+});
+typedef $$WishlistItemsTableUpdateCompanionBuilder = WishlistItemsCompanion
+    Function({
+  Value<int> id,
+  Value<String> activityType,
+  Value<String> title,
+  Value<String?> notes,
+  Value<DateTime?> targetDate,
+  Value<bool> isCompleted,
+  Value<int?> completedActivityId,
+  Value<bool> pendingSync,
+});
+
+class $$WishlistItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $WishlistItemsTable> {
+  $$WishlistItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get activityType => $composableBuilder(
+      column: $table.activityType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get targetDate => $composableBuilder(
+      column: $table.targetDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completedActivityId => $composableBuilder(
+      column: $table.completedActivityId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => ColumnFilters(column));
+}
+
+class $$WishlistItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WishlistItemsTable> {
+  $$WishlistItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get activityType => $composableBuilder(
+      column: $table.activityType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get targetDate => $composableBuilder(
+      column: $table.targetDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completedActivityId => $composableBuilder(
+      column: $table.completedActivityId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WishlistItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WishlistItemsTable> {
+  $$WishlistItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get activityType => $composableBuilder(
+      column: $table.activityType, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get targetDate => $composableBuilder(
+      column: $table.targetDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+      column: $table.isCompleted, builder: (column) => column);
+
+  GeneratedColumn<int> get completedActivityId => $composableBuilder(
+      column: $table.completedActivityId, builder: (column) => column);
+
+  GeneratedColumn<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => column);
+}
+
+class $$WishlistItemsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $WishlistItemsTable,
+    WishlistItem,
+    $$WishlistItemsTableFilterComposer,
+    $$WishlistItemsTableOrderingComposer,
+    $$WishlistItemsTableAnnotationComposer,
+    $$WishlistItemsTableCreateCompanionBuilder,
+    $$WishlistItemsTableUpdateCompanionBuilder,
+    (
+      WishlistItem,
+      BaseReferences<_$AppDatabase, $WishlistItemsTable, WishlistItem>
+    ),
+    WishlistItem,
+    PrefetchHooks Function()> {
+  $$WishlistItemsTableTableManager(_$AppDatabase db, $WishlistItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WishlistItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WishlistItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WishlistItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> activityType = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime?> targetDate = const Value.absent(),
+            Value<bool> isCompleted = const Value.absent(),
+            Value<int?> completedActivityId = const Value.absent(),
+            Value<bool> pendingSync = const Value.absent(),
+          }) =>
+              WishlistItemsCompanion(
+            id: id,
+            activityType: activityType,
+            title: title,
+            notes: notes,
+            targetDate: targetDate,
+            isCompleted: isCompleted,
+            completedActivityId: completedActivityId,
+            pendingSync: pendingSync,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String activityType,
+            required String title,
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime?> targetDate = const Value.absent(),
+            Value<bool> isCompleted = const Value.absent(),
+            Value<int?> completedActivityId = const Value.absent(),
+            Value<bool> pendingSync = const Value.absent(),
+          }) =>
+              WishlistItemsCompanion.insert(
+            id: id,
+            activityType: activityType,
+            title: title,
+            notes: notes,
+            targetDate: targetDate,
+            isCompleted: isCompleted,
+            completedActivityId: completedActivityId,
+            pendingSync: pendingSync,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WishlistItemsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $WishlistItemsTable,
+    WishlistItem,
+    $$WishlistItemsTableFilterComposer,
+    $$WishlistItemsTableOrderingComposer,
+    $$WishlistItemsTableAnnotationComposer,
+    $$WishlistItemsTableCreateCompanionBuilder,
+    $$WishlistItemsTableUpdateCompanionBuilder,
+    (
+      WishlistItem,
+      BaseReferences<_$AppDatabase, $WishlistItemsTable, WishlistItem>
+    ),
+    WishlistItem,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
@@ -12567,4 +13348,6 @@ class $AppDatabaseManager {
       $$RunSessionsTableTableManager(_db, _db.runSessions);
   $$ActivityEntriesTableTableManager get activityEntries =>
       $$ActivityEntriesTableTableManager(_db, _db.activityEntries);
+  $$WishlistItemsTableTableManager get wishlistItems =>
+      $$WishlistItemsTableTableManager(_db, _db.wishlistItems);
 }

@@ -100,6 +100,13 @@ class CategoriesHubScreen extends StatelessWidget {
       route: '/categories/trends',
     ),
     CategoryTileItem(
+      title: 'Wishlist & Goals',
+      subtitle: 'Target trails & routes',
+      icon: '🎯',
+      color: Color(0xFFE11D48),
+      route: '/wishlist',
+    ),
+    CategoryTileItem(
       title: 'Awards',
       subtitle: 'Trophies & milestones',
       icon: '🏆',

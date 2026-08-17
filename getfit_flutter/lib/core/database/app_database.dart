@@ -236,12 +236,27 @@ class ActivityEntries extends Table {
   DateTimeColumn get date => dateTime()();
   DateTimeColumn get startTime => dateTime()();
   IntColumn get durationSeconds => integer().withDefault(const Constant(0))();
+  IntColumn get pausedDurationSeconds => integer().withDefault(const Constant(0))();
   RealColumn get distanceMeters => real().nullable()();
   TextColumn get routePointsJson => text().withDefault(const Constant('[]'))();
   IntColumn get laps => integer().nullable()(); // swimming
   IntColumn get poolLengthMeters => integer().nullable()(); // swimming
   RealColumn get caloriesBurned => real().withDefault(const Constant(0.0))();
   TextColumn get moodNotes => text().nullable()();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
+}
+
+// ─── OUTDOOR GOALS & WISHLIST ─────────────────
+
+class WishlistItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get activityType => text()(); // 'running', 'cycling', 'hiking', 'walking'
+  TextColumn get title => text()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get targetDate => dateTime().nullable()();
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
+  IntColumn get completedActivityId => integer().nullable()();
   BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
 }
 
@@ -267,6 +282,7 @@ class ActivityEntries extends Table {
   DailyStepEntries,
   RunSessions,
   ActivityEntries,
+  WishlistItems,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -452,6 +468,34 @@ class AppDatabase extends _$AppDatabase {
             ..orderBy([(t) => OrderingTerm.desc(t.date)])
             ..limit(limit))
           .get();
+
+  Future<void> toggleActivityFavorite(int id, bool isFav) =>
+      (update(activityEntries)..where((t) => t.id.equals(id)))
+          .write(ActivityEntriesCompanion(isFavorite: Value(isFav)));
+
+  // ── Wishlist & Outdoor Goals ───────────────
+
+  Future<int> insertWishlistItem(WishlistItemsCompanion item) =>
+      into(wishlistItems).insert(item);
+
+  Future<List<WishlistItem>> getWishlistItems({String? activityType}) {
+    final query = select(wishlistItems);
+    if (activityType != null && activityType.isNotEmpty) {
+      query.where((t) => t.activityType.equals(activityType.toLowerCase()));
+    }
+    return (query..orderBy([(t) => OrderingTerm.asc(t.isCompleted), (t) => OrderingTerm.desc(t.id)])).get();
+  }
+
+  Future<void> completeWishlistItem(int id, {int? completedActivityId}) =>
+      (update(wishlistItems)..where((t) => t.id.equals(id))).write(
+        WishlistItemsCompanion(
+          isCompleted: const Value(true),
+          completedActivityId: Value(completedActivityId),
+        ),
+      );
+
+  Future<void> deleteWishlistItem(int id) =>
+      (delete(wishlistItems)..where((t) => t.id.equals(id))).go();
 
   // ── Pending sync count ─────────────────────
 
