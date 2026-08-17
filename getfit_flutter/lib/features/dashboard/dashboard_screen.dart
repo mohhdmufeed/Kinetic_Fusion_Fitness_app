@@ -9,6 +9,7 @@ import '../../core/database/app_database.dart';
 import '../../core/sync/sync_service.dart';
 import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/main_shell.dart';
+import 'widgets/daily_challenge_card.dart';
 import 'widgets/activity_ring_card.dart';
 import 'widgets/steps_summary_card.dart';
 import 'widgets/distance_summary_card.dart';
@@ -31,7 +32,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   List<WorkoutLog> _recentLogs = [];
   List<NutritionDiaryData> _todayDiary = [];
   UserProfileData? _userProfile;
-  List<String> _layoutOrder = ['ring', 'steps', 'distance', 'sessions', 'awards', 'quote'];
+  List<String> _layoutOrder = ['challenges', 'ring', 'steps', 'distance', 'sessions', 'awards', 'quote'];
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final pending = await db.getPendingSyncCount();
     final profile = await db.getUserProfile();
 
-    List<String> layout = ['ring', 'steps', 'distance', 'sessions', 'awards', 'quote'];
+    List<String> layout = ['challenges', 'ring', 'steps', 'distance', 'sessions', 'awards', 'quote'];
     if (profile?.summaryLayout != null && profile!.summaryLayout.isNotEmpty) {
       try {
         final decoded = jsonDecode(profile.summaryLayout) as List<dynamic>;
@@ -105,6 +106,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildSummaryCard(String id) {
     switch (id) {
+      case 'challenges':
+        return const DailyChallengeCard();
       case 'ring':
         return const ActivityRingCard();
       case 'steps':
@@ -166,6 +169,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.account_circle_outlined, color: Colors.white),
+                  onPressed: () => context.push('/account'),
+                  tooltip: 'Account & Profile',
+                ),
                 IconButton(
                   icon: const Icon(Icons.dashboard_customize_rounded, color: Colors.white),
                   onPressed: _openLayoutEditor,

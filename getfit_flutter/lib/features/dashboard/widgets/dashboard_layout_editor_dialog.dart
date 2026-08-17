@@ -39,6 +39,7 @@ class _DashboardLayoutEditorDialogState
   late List<DashboardCardItem> _items;
 
   final Map<String, Map<String, dynamic>> _catalog = {
+    'challenges': {'title': 'Daily Challenges', 'icon': Icons.local_fire_department_rounded},
     'ring': {'title': 'Activity Ring (kcal moved)', 'icon': Icons.donut_large_rounded},
     'steps': {'title': 'Steps & Sparkline', 'icon': Icons.directions_walk_rounded},
     'distance': {'title': 'Distance Moved', 'icon': Icons.route_rounded},

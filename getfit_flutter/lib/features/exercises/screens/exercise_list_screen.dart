@@ -5,6 +5,8 @@ import '../../../core/database/app_database.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/main_shell.dart';
 
+import '../widgets/custom_exercise_form_dialog.dart';
+
 class ExerciseListScreen extends ConsumerStatefulWidget {
   const ExerciseListScreen({super.key});
   @override
@@ -53,6 +55,19 @@ class _ExerciseListScreenState extends ConsumerState<ExerciseListScreen> {
     }
   }
 
+  void _openCustomExerciseDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => CustomExerciseFormDialog(
+        onSaved: () {
+          _loadExercises();
+        },
+      ),
+    );
+  }
+
   void _filter() {
     setState(() {
       _filtered = _exercises.where((e) {
@@ -86,6 +101,11 @@ class _ExerciseListScreenState extends ConsumerState<ExerciseListScreen> {
       appBar: AppBar(
         title: const Text('Exercises'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add_rounded),
+            tooltip: 'Add Custom Exercise',
+            onPressed: _openCustomExerciseDialog,
+          ),
           IconButton(
             icon: const Icon(Icons.filter_list_rounded),
             onPressed: _showFilterSheet,

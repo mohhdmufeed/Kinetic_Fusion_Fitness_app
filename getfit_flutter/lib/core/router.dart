@@ -24,6 +24,8 @@ import '../features/categories/screens/trainer_tips_screen.dart';
 import '../features/categories/screens/trends_dashboard_screen.dart';
 import '../features/live_session/screens/live_workout_screen.dart';
 import '../features/wishlist/screens/wishlist_screen.dart';
+import '../features/account/screens/account_screen.dart';
+import '../features/feedback/screens/feedback_screen.dart';
 import '../shared/widgets/main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -49,6 +51,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/run-tracker', builder: (_, __) => const RunTrackerScreen()),
+      GoRoute(path: '/account', builder: (_, __) => const AccountScreen()),
+      GoRoute(path: '/feedback', builder: (_, __) => const FeedbackScreen()),
       GoRoute(
         path: '/live-session/:type',
         builder: (_, state) => LiveWorkoutScreen(

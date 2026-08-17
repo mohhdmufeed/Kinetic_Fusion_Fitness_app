@@ -18,6 +18,7 @@ class Exercises extends Table {
   TextColumn get muscles => text().withDefault(const Constant('[]'))();   // JSON list
   TextColumn get equipment => text().withDefault(const Constant('[]'))();  // JSON list
   TextColumn get imageUrl => text().withDefault(const Constant(''))();
+  BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -196,8 +197,13 @@ class UserProfile extends Table {
   IntColumn get weightReminderDays => integer().withDefault(const Constant(7))();
   BoolColumn get workoutReminder => boolean().withDefault(const Constant(true))();
 
+  // Daily Reminder & Alarm (Custom Time + Days)
+  TextColumn get dailyReminderTime => text().withDefault(const Constant('18:30'))();
+  TextColumn get dailyReminderDays => text().withDefault(const Constant('[1,2,3,4,5]'))();
+  BoolColumn get dailyReminderEnabled => boolean().withDefault(const Constant(true))();
+
   // Customizable Summary Layout
-  TextColumn get summaryLayout => text().withDefault(const Constant('["ring","steps","distance","sessions","awards","quote"]'))();
+  TextColumn get summaryLayout => text().withDefault(const Constant('["challenges","ring","steps","distance","sessions","awards","quote"]'))();
 
   DateTimeColumn get lastSync => dateTime().nullable()();
 }
@@ -260,6 +266,30 @@ class WishlistItems extends Table {
   BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
 }
 
+// ─── DAILY CHALLENGES ──────────────────────────
+
+class DailyChallenges extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  TextColumn get description => text()();
+  RealColumn get targetValue => real().withDefault(const Constant(1.0))();
+  TextColumn get targetUnit => text().withDefault(const Constant('reps'))();
+  TextColumn get activityType => text().withDefault(const Constant('general'))();
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get dateCompleted => dateTime().nullable()();
+}
+
+// ─── USER FEEDBACK ENTRIES ─────────────────────
+
+class FeedbackEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get category => text()(); // 'bug', 'suggestion', 'other'
+  TextColumn get message => text()();
+  IntColumn get rating => integer().withDefault(const Constant(5))();
+  DateTimeColumn get createdAt => dateTime()();
+  BoolColumn get pendingSync => boolean().withDefault(const Constant(true))();
+}
+
 // ─────────────────────────────────────────────
 //  DATABASE
 // ─────────────────────────────────────────────
@@ -283,6 +313,8 @@ class WishlistItems extends Table {
   RunSessions,
   ActivityEntries,
   WishlistItems,
+  DailyChallenges,
+  FeedbackEntries,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -496,6 +528,71 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteWishlistItem(int id) =>
       (delete(wishlistItems)..where((t) => t.id.equals(id))).go();
+
+  // ── Daily Challenges ───────────────────────
+
+  Future<List<DailyChallenge>> getDailyChallenges() =>
+      select(dailyChallenges).get();
+
+  Future<void> initDefaultChallengesIfEmpty() async {
+    final existing = await select(dailyChallenges).get();
+    if (existing.isEmpty) {
+      final pool = [
+        const DailyChallengesCompanion(
+          title: Value('Sprint Intervals (30s x 10)'),
+          description: Value('High intensity sprint bursts with 45s recovery walk between.'),
+          targetValue: Value(10.0),
+          targetUnit: Value('intervals'),
+          activityType: Value('running'),
+        ),
+        const DailyChallengesCompanion(
+          title: Value('100 Push-Up Milestone'),
+          description: Value('Accumulate 100 push-ups in total throughout the day.'),
+          targetValue: Value(100.0),
+          targetUnit: Value('reps'),
+          activityType: Value('strength'),
+        ),
+        const DailyChallengesCompanion(
+          title: Value('Daily Step Target (8,000 steps)'),
+          description: Value('Keep moving throughout the day and reach 8,000 steps.'),
+          targetValue: Value(8000.0),
+          targetUnit: Value('steps'),
+          activityType: Value('walking'),
+        ),
+        const DailyChallengesCompanion(
+          title: Value('10-Minute Breathwork Meditation'),
+          description: Value('Dedicated box-breathing mindfulness session to reset.'),
+          targetValue: Value(10.0),
+          targetUnit: Value('mins'),
+          activityType: Value('mindfulness'),
+        ),
+      ];
+      for (final c in pool) {
+        await into(dailyChallenges).insert(c);
+      }
+    }
+  }
+
+  Future<void> completeDailyChallenge(int id, bool isCompleted) =>
+      (update(dailyChallenges)..where((t) => t.id.equals(id))).write(
+        DailyChallengesCompanion(
+          isCompleted: Value(isCompleted),
+          dateCompleted: Value(isCompleted ? DateTime.now() : null),
+        ),
+      );
+
+  // ── User Feedback ──────────────────────────
+
+  Future<int> insertFeedback(FeedbackEntriesCompanion entry) =>
+      into(feedbackEntries).insert(entry);
+
+  Future<List<FeedbackEntry>> getFeedbackEntries() =>
+      (select(feedbackEntries)..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
+
+  // ── Custom Exercises ───────────────────────
+
+  Future<int> insertCustomExercise(ExercisesCompanion exercise) =>
+      into(exercises).insert(exercise);
 
   // ── Pending sync count ─────────────────────
 
