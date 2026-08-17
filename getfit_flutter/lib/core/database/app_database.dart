@@ -228,6 +228,23 @@ class RunSessions extends Table {
   BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
 }
 
+// ─── UNIFIED ACTIVITY ENTRIES ──────────────────
+
+class ActivityEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get activityType => text()(); // 'running', 'cycling', 'swimming', 'hiking', 'walking', 'mindfulness'
+  DateTimeColumn get date => dateTime()();
+  DateTimeColumn get startTime => dateTime()();
+  IntColumn get durationSeconds => integer().withDefault(const Constant(0))();
+  RealColumn get distanceMeters => real().nullable()();
+  TextColumn get routePointsJson => text().withDefault(const Constant('[]'))();
+  IntColumn get laps => integer().nullable()(); // swimming
+  IntColumn get poolLengthMeters => integer().nullable()(); // swimming
+  RealColumn get caloriesBurned => real().withDefault(const Constant(0.0))();
+  TextColumn get moodNotes => text().nullable()();
+  BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
+}
+
 // ─────────────────────────────────────────────
 //  DATABASE
 // ─────────────────────────────────────────────
@@ -249,6 +266,7 @@ class RunSessions extends Table {
   UserProfile,
   DailyStepEntries,
   RunSessions,
+  ActivityEntries,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -403,6 +421,37 @@ class AppDatabase extends _$AppDatabase {
 
   Future<RunSession?> getRunSessionById(int id) =>
       (select(runSessions)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  // ── Unified Activity Entries (All Sports) ──
+
+  Future<int> insertActivityEntry(ActivityEntriesCompanion entry) =>
+      into(activityEntries).insert(entry);
+
+  Future<List<ActivityEntry>> getActivityEntriesByType(String type, {int limit = 50}) =>
+      (select(activityEntries)
+            ..where((t) => t.activityType.equals(type.toLowerCase()))
+            ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+          .get();
+
+  Future<List<ActivityEntry>> getActivityEntriesByDateRange(
+    DateTime start,
+    DateTime end, {
+    String? activityType,
+  }) {
+    final query = select(activityEntries)
+      ..where((t) =>
+          t.date.isBiggerOrEqualValue(start) & t.date.isSmallerOrEqualValue(end));
+    if (activityType != null && activityType.isNotEmpty) {
+      query.where((t) => t.activityType.equals(activityType.toLowerCase()));
+    }
+    return (query..orderBy([(t) => OrderingTerm.desc(t.date)])).get();
+  }
+
+  Future<List<ActivityEntry>> getAllActivityEntries({int limit = 100}) =>
+      (select(activityEntries)
+            ..orderBy([(t) => OrderingTerm.desc(t.date)])
+            ..limit(limit))
+          .get();
 
   // ── Pending sync count ─────────────────────
 

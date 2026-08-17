@@ -8,10 +8,10 @@ class MainShell extends StatelessWidget {
 
   static const _tabs = [
     (icon: Icons.home_rounded, label: 'Home', path: '/dashboard'),
+    (icon: Icons.category_rounded, label: 'Explore', path: '/categories'),
     (icon: Icons.fitness_center_rounded, label: 'Workouts', path: '/workouts'),
-    (icon: Icons.sports_gymnastics_rounded, label: 'Exercises', path: '/exercises'),
     (icon: Icons.restaurant_rounded, label: 'Nutrition', path: '/nutrition'),
-    (icon: Icons.monitor_weight_rounded, label: 'Stats', path: '/charts'),
+    (icon: Icons.bar_chart_rounded, label: 'Reports', path: '/charts'),
   ];
 
   int _currentIndex(BuildContext context) {

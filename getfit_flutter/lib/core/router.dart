@@ -18,6 +18,10 @@ import '../features/charts/charts_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/runs/screens/run_history_screen.dart';
 import '../features/runs/screens/run_tracker_screen.dart';
+import '../features/categories/screens/categories_hub_screen.dart';
+import '../features/categories/screens/category_report_screen.dart';
+import '../features/categories/screens/trainer_tips_screen.dart';
+import '../features/categories/screens/trends_dashboard_screen.dart';
 import '../shared/widgets/main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -43,12 +47,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/run-tracker', builder: (_, __) => const RunTrackerScreen()),
+      GoRoute(
+        path: '/categories/report/:type',
+        builder: (_, state) => CategoryReportScreen(
+          activityType: state.pathParameters['type'] ?? 'running',
+        ),
+      ),
+      GoRoute(path: '/categories/tips', builder: (_, __) => const TrainerTipsScreen()),
+      GoRoute(path: '/categories/trends', builder: (_, __) => const TrendsDashboardScreen()),
 
       // Main shell with bottom nav
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
           GoRoute(path: '/dashboard', builder: (_, __) => const DashboardScreen()),
+          GoRoute(path: '/categories', builder: (_, __) => const CategoriesHubScreen()),
           GoRoute(
             path: '/workouts',
             builder: (_, __) => const RoutinesScreen(),
