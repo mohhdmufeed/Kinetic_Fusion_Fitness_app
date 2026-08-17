@@ -8,6 +8,7 @@ import '../../../core/constants.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/sync/sync_service.dart';
 import '../../../core/utils/move_goal_calculator.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/personal_info_form.dart';
 import '../../../shared/widgets/activity_level_picker.dart';
@@ -28,6 +29,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _savingActivity = false;
   PersonalInfoData _profileData = PersonalInfoData();
   ActivityData _activityData = ActivityData();
+  NotificationSettings _notifSettings = const NotificationSettings();
   bool _profileLoaded = false;
 
   @override
@@ -42,12 +44,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         .read(key: AppConstants.lastSyncKey);
     final p = await ref.read(databaseProvider).getPendingSyncCount();
     final profile = await ref.read(databaseProvider).getUserProfile();
+    final notifs = await ref.read(notificationServiceProvider).getSettings();
 
     if (mounted) {
       setState(() {
         _username = u;
         _lastSync = ls;
         _pending = p;
+        _notifSettings = notifs;
         if (profile != null) {
           _profileData = PersonalInfoData(
             birthDate: profile.birthDate,
@@ -72,6 +76,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _profileLoaded = true;
       });
     }
+  }
+
+  Future<void> _toggleNotifications(bool enabled) async {
+    if (enabled) {
+      await ref.read(notificationServiceProvider).requestNotificationPermission();
+    }
+    await ref.read(notificationServiceProvider).updateSettings(enabled: enabled);
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(enabled ? 'Notifications & Reminders enabled ✓' : 'Notifications disabled'),
+        backgroundColor: enabled ? AppColors.success : AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _saveProfile() async {
@@ -371,6 +391,55 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         child: CircularProgressIndicator(),
                       ),
                     ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Notifications & Reminders
+          _sectionTitle('Notifications & Reminders'),
+          const SizedBox(height: 12),
+          Card(
+            child: Column(
+              children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.notifications_active_outlined, color: AppColors.primary),
+                  title: const Text('Push Reminders'),
+                  subtitle: const Text('Move goal, weigh-in & workout alerts'),
+                  value: _notifSettings.enabled,
+                  activeColor: AppColors.primary,
+                  onChanged: _toggleNotifications,
+                ),
+                if (_notifSettings.enabled) ...[
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    title: const Text('Daily Move Goal Reminder'),
+                    subtitle: const Text('Alert if goal not met by evening'),
+                    value: _notifSettings.moveGoalReminder,
+                    activeColor: AppColors.primary,
+                    onChanged: (val) async {
+                      await ref.read(notificationServiceProvider).updateSettings(
+                        enabled: true,
+                        moveGoalReminder: val,
+                      );
+                      _load();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    title: const Text('Workout Schedule Reminder'),
+                    subtitle: const Text('Notify on planned training days'),
+                    value: _notifSettings.workoutReminder,
+                    activeColor: AppColors.primary,
+                    onChanged: (val) async {
+                      await ref.read(notificationServiceProvider).updateSettings(
+                        enabled: true,
+                        workoutReminder: val,
+                      );
+                      _load();
+                    },
+                  ),
+                ],
+              ],
             ),
           ),
           const SizedBox(height: 24),

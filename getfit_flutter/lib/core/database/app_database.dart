@@ -190,7 +190,39 @@ class UserProfile extends Table {
   RealColumn get sleepHours => real().withDefault(const Constant(8.0))();
   IntColumn get dailyMoveGoalCalories => integer().withDefault(const Constant(400))();
 
+  // Notification & Reminder Preferences
+  BoolColumn get notificationsEnabled => boolean().withDefault(const Constant(false))();
+  BoolColumn get moveGoalReminder => boolean().withDefault(const Constant(true))();
+  IntColumn get weightReminderDays => integer().withDefault(const Constant(7))();
+  BoolColumn get workoutReminder => boolean().withDefault(const Constant(true))();
+
   DateTimeColumn get lastSync => dateTime().nullable()();
+}
+
+// ─── STEP COUNTING (SENSOR) ────────────────────
+
+class DailyStepEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get date => dateTime()();
+  IntColumn get stepCount => integer().withDefault(const Constant(0))();
+  RealColumn get distanceMeters => real().withDefault(const Constant(0.0))();
+  RealColumn get caloriesBurned => real().withDefault(const Constant(0.0))();
+  BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
+}
+
+// ─── RUN TRACKING & GPS ROUTES ─────────────────
+
+class RunSessions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get startTime => dateTime()();
+  DateTimeColumn get endTime => dateTime()();
+  RealColumn get distanceMeters => real().withDefault(const Constant(0.0))();
+  IntColumn get durationSeconds => integer().withDefault(const Constant(0))();
+  RealColumn get caloriesBurned => real().withDefault(const Constant(0.0))();
+  RealColumn get avgPaceMinPerKm => real().withDefault(const Constant(0.0))();
+  TextColumn get routePointsJson => text().withDefault(const Constant('[]'))();
+  TextColumn get notes => text().nullable()();
+  BoolColumn get pendingSync => boolean().withDefault(const Constant(false))();
 }
 
 // ─────────────────────────────────────────────
@@ -212,6 +244,8 @@ class UserProfile extends Table {
   MeasurementCategories,
   Measurements,
   UserProfile,
+  DailyStepEntries,
+  RunSessions,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -324,6 +358,48 @@ class AppDatabase extends _$AppDatabase {
             ..where((t) => t.isDeleted.equals(false))
             ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
           .get();
+
+  // ── Step Counting (Sensor) ────────────────
+  
+  Future<DailyStepEntry?> getTodayStepEntry() async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+    return (select(dailyStepEntries)
+          ..where((t) => t.date.isBiggerOrEqualValue(startOfDay) & t.date.isSmallerOrEqualValue(endOfDay))
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  Future<int> saveStepEntry(DailyStepEntriesCompanion entry) async {
+    final existing = await getTodayStepEntry();
+    if (existing != null) {
+      await (update(dailyStepEntries)..where((t) => t.id.equals(existing.id))).write(entry);
+      return existing.id;
+    } else {
+      return into(dailyStepEntries).insert(entry);
+    }
+  }
+
+  Future<List<DailyStepEntry>> getRecentStepEntries({int limit = 7}) =>
+      (select(dailyStepEntries)
+            ..orderBy([(t) => OrderingTerm.desc(t.date)])
+            ..limit(limit))
+          .get();
+
+  // ── Run Tracking & GPS ─────────────────────
+
+  Future<int> insertRunSession(RunSessionsCompanion entry) =>
+      into(runSessions).insert(entry);
+
+  Future<List<RunSession>> getRunSessions({int limit = 30}) =>
+      (select(runSessions)
+            ..orderBy([(t) => OrderingTerm.desc(t.startTime)])
+            ..limit(limit))
+          .get();
+
+  Future<RunSession?> getRunSessionById(int id) =>
+      (select(runSessions)..where((t) => t.id.equals(id))).getSingleOrNull();
 
   // ── Pending sync count ─────────────────────
 

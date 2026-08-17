@@ -8,6 +8,7 @@ import '../../core/database/app_database.dart';
 import '../../core/sync/sync_service.dart';
 import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/main_shell.dart';
+import '../../shared/widgets/step_counter_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -220,6 +221,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 16),
+
+                        // Step Counter Card
+                        const StepCounterCard(),
                         const SizedBox(height: 24),
 
                         // Quick actions
@@ -230,13 +235,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             Expanded(
                               child: _quickAction(
                                 context,
+                                icon: Icons.directions_run_rounded,
+                                label: 'Start\nRun',
+                                color: const Color(0xFF0284C7),
+                                onTap: () => context.push('/run-tracker'),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _quickAction(
+                                context,
                                 icon: Icons.fitness_center_rounded,
                                 label: 'Log\nWorkout',
                                 color: AppColors.primary,
                                 onTap: () => context.go('/workouts'),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: _quickAction(
                                 context,
@@ -246,7 +261,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 onTap: () => context.go('/nutrition/diary'),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: _quickAction(
                                 context,

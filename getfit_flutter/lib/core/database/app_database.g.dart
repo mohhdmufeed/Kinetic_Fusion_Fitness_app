@@ -4819,6 +4819,44 @@ class $UserProfileTable extends UserProfile
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(400));
+  static const VerificationMeta _notificationsEnabledMeta =
+      const VerificationMeta('notificationsEnabled');
+  @override
+  late final GeneratedColumn<bool> notificationsEnabled = GeneratedColumn<bool>(
+      'notifications_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("notifications_enabled" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _moveGoalReminderMeta =
+      const VerificationMeta('moveGoalReminder');
+  @override
+  late final GeneratedColumn<bool> moveGoalReminder = GeneratedColumn<bool>(
+      'move_goal_reminder', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("move_goal_reminder" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _weightReminderDaysMeta =
+      const VerificationMeta('weightReminderDays');
+  @override
+  late final GeneratedColumn<int> weightReminderDays = GeneratedColumn<int>(
+      'weight_reminder_days', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(7));
+  static const VerificationMeta _workoutReminderMeta =
+      const VerificationMeta('workoutReminder');
+  @override
+  late final GeneratedColumn<bool> workoutReminder = GeneratedColumn<bool>(
+      'workout_reminder', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("workout_reminder" IN (0, 1))'),
+      defaultValue: const Constant(true));
   static const VerificationMeta _lastSyncMeta =
       const VerificationMeta('lastSync');
   @override
@@ -4845,6 +4883,10 @@ class $UserProfileTable extends UserProfile
         freetimeIntensity,
         sleepHours,
         dailyMoveGoalCalories,
+        notificationsEnabled,
+        moveGoalReminder,
+        weightReminderDays,
+        workoutReminder,
         lastSync
       ];
   @override
@@ -4948,6 +4990,30 @@ class $UserProfileTable extends UserProfile
           dailyMoveGoalCalories.isAcceptableOrUnknown(
               data['daily_move_goal_calories']!, _dailyMoveGoalCaloriesMeta));
     }
+    if (data.containsKey('notifications_enabled')) {
+      context.handle(
+          _notificationsEnabledMeta,
+          notificationsEnabled.isAcceptableOrUnknown(
+              data['notifications_enabled']!, _notificationsEnabledMeta));
+    }
+    if (data.containsKey('move_goal_reminder')) {
+      context.handle(
+          _moveGoalReminderMeta,
+          moveGoalReminder.isAcceptableOrUnknown(
+              data['move_goal_reminder']!, _moveGoalReminderMeta));
+    }
+    if (data.containsKey('weight_reminder_days')) {
+      context.handle(
+          _weightReminderDaysMeta,
+          weightReminderDays.isAcceptableOrUnknown(
+              data['weight_reminder_days']!, _weightReminderDaysMeta));
+    }
+    if (data.containsKey('workout_reminder')) {
+      context.handle(
+          _workoutReminderMeta,
+          workoutReminder.isAcceptableOrUnknown(
+              data['workout_reminder']!, _workoutReminderMeta));
+    }
     if (data.containsKey('last_sync')) {
       context.handle(_lastSyncMeta,
           lastSync.isAcceptableOrUnknown(data['last_sync']!, _lastSyncMeta));
@@ -4997,6 +5063,14 @@ class $UserProfileTable extends UserProfile
           .read(DriftSqlType.double, data['${effectivePrefix}sleep_hours'])!,
       dailyMoveGoalCalories: attachedDatabase.typeMapping.read(DriftSqlType.int,
           data['${effectivePrefix}daily_move_goal_calories'])!,
+      notificationsEnabled: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}notifications_enabled'])!,
+      moveGoalReminder: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}move_goal_reminder'])!,
+      weightReminderDays: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}weight_reminder_days'])!,
+      workoutReminder: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}workout_reminder'])!,
       lastSync: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}last_sync']),
     );
@@ -5027,6 +5101,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
   final String freetimeIntensity;
   final double sleepHours;
   final int dailyMoveGoalCalories;
+  final bool notificationsEnabled;
+  final bool moveGoalReminder;
+  final int weightReminderDays;
+  final bool workoutReminder;
   final DateTime? lastSync;
   const UserProfileData(
       {required this.id,
@@ -5047,6 +5125,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       required this.freetimeIntensity,
       required this.sleepHours,
       required this.dailyMoveGoalCalories,
+      required this.notificationsEnabled,
+      required this.moveGoalReminder,
+      required this.weightReminderDays,
+      required this.workoutReminder,
       this.lastSync});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5075,6 +5157,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     map['freetime_intensity'] = Variable<String>(freetimeIntensity);
     map['sleep_hours'] = Variable<double>(sleepHours);
     map['daily_move_goal_calories'] = Variable<int>(dailyMoveGoalCalories);
+    map['notifications_enabled'] = Variable<bool>(notificationsEnabled);
+    map['move_goal_reminder'] = Variable<bool>(moveGoalReminder);
+    map['weight_reminder_days'] = Variable<int>(weightReminderDays);
+    map['workout_reminder'] = Variable<bool>(workoutReminder);
     if (!nullToAbsent || lastSync != null) {
       map['last_sync'] = Variable<DateTime>(lastSync);
     }
@@ -5107,6 +5193,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       freetimeIntensity: Value(freetimeIntensity),
       sleepHours: Value(sleepHours),
       dailyMoveGoalCalories: Value(dailyMoveGoalCalories),
+      notificationsEnabled: Value(notificationsEnabled),
+      moveGoalReminder: Value(moveGoalReminder),
+      weightReminderDays: Value(weightReminderDays),
+      workoutReminder: Value(workoutReminder),
       lastSync: lastSync == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSync),
@@ -5136,6 +5226,11 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       sleepHours: serializer.fromJson<double>(json['sleepHours']),
       dailyMoveGoalCalories:
           serializer.fromJson<int>(json['dailyMoveGoalCalories']),
+      notificationsEnabled:
+          serializer.fromJson<bool>(json['notificationsEnabled']),
+      moveGoalReminder: serializer.fromJson<bool>(json['moveGoalReminder']),
+      weightReminderDays: serializer.fromJson<int>(json['weightReminderDays']),
+      workoutReminder: serializer.fromJson<bool>(json['workoutReminder']),
       lastSync: serializer.fromJson<DateTime?>(json['lastSync']),
     );
   }
@@ -5161,6 +5256,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       'freetimeIntensity': serializer.toJson<String>(freetimeIntensity),
       'sleepHours': serializer.toJson<double>(sleepHours),
       'dailyMoveGoalCalories': serializer.toJson<int>(dailyMoveGoalCalories),
+      'notificationsEnabled': serializer.toJson<bool>(notificationsEnabled),
+      'moveGoalReminder': serializer.toJson<bool>(moveGoalReminder),
+      'weightReminderDays': serializer.toJson<int>(weightReminderDays),
+      'workoutReminder': serializer.toJson<bool>(workoutReminder),
       'lastSync': serializer.toJson<DateTime?>(lastSync),
     };
   }
@@ -5184,6 +5283,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           String? freetimeIntensity,
           double? sleepHours,
           int? dailyMoveGoalCalories,
+          bool? notificationsEnabled,
+          bool? moveGoalReminder,
+          int? weightReminderDays,
+          bool? workoutReminder,
           Value<DateTime?> lastSync = const Value.absent()}) =>
       UserProfileData(
         id: id ?? this.id,
@@ -5205,6 +5308,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
         sleepHours: sleepHours ?? this.sleepHours,
         dailyMoveGoalCalories:
             dailyMoveGoalCalories ?? this.dailyMoveGoalCalories,
+        notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+        moveGoalReminder: moveGoalReminder ?? this.moveGoalReminder,
+        weightReminderDays: weightReminderDays ?? this.weightReminderDays,
+        workoutReminder: workoutReminder ?? this.workoutReminder,
         lastSync: lastSync.present ? lastSync.value : this.lastSync,
       );
   UserProfileData copyWithCompanion(UserProfileCompanion data) {
@@ -5243,6 +5350,18 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       dailyMoveGoalCalories: data.dailyMoveGoalCalories.present
           ? data.dailyMoveGoalCalories.value
           : this.dailyMoveGoalCalories,
+      notificationsEnabled: data.notificationsEnabled.present
+          ? data.notificationsEnabled.value
+          : this.notificationsEnabled,
+      moveGoalReminder: data.moveGoalReminder.present
+          ? data.moveGoalReminder.value
+          : this.moveGoalReminder,
+      weightReminderDays: data.weightReminderDays.present
+          ? data.weightReminderDays.value
+          : this.weightReminderDays,
+      workoutReminder: data.workoutReminder.present
+          ? data.workoutReminder.value
+          : this.workoutReminder,
       lastSync: data.lastSync.present ? data.lastSync.value : this.lastSync,
     );
   }
@@ -5268,32 +5387,41 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           ..write('freetimeIntensity: $freetimeIntensity, ')
           ..write('sleepHours: $sleepHours, ')
           ..write('dailyMoveGoalCalories: $dailyMoveGoalCalories, ')
+          ..write('notificationsEnabled: $notificationsEnabled, ')
+          ..write('moveGoalReminder: $moveGoalReminder, ')
+          ..write('weightReminderDays: $weightReminderDays, ')
+          ..write('workoutReminder: $workoutReminder, ')
           ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      username,
-      email,
-      birthDate,
-      sex,
-      heightCm,
-      weightKg,
-      weightUnit,
-      activityLevel,
-      profession,
-      workHours,
-      workIntensity,
-      sportHours,
-      sportIntensity,
-      freetimeHours,
-      freetimeIntensity,
-      sleepHours,
-      dailyMoveGoalCalories,
-      lastSync);
+  int get hashCode => Object.hashAll([
+        id,
+        username,
+        email,
+        birthDate,
+        sex,
+        heightCm,
+        weightKg,
+        weightUnit,
+        activityLevel,
+        profession,
+        workHours,
+        workIntensity,
+        sportHours,
+        sportIntensity,
+        freetimeHours,
+        freetimeIntensity,
+        sleepHours,
+        dailyMoveGoalCalories,
+        notificationsEnabled,
+        moveGoalReminder,
+        weightReminderDays,
+        workoutReminder,
+        lastSync
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5316,6 +5444,10 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           other.freetimeIntensity == this.freetimeIntensity &&
           other.sleepHours == this.sleepHours &&
           other.dailyMoveGoalCalories == this.dailyMoveGoalCalories &&
+          other.notificationsEnabled == this.notificationsEnabled &&
+          other.moveGoalReminder == this.moveGoalReminder &&
+          other.weightReminderDays == this.weightReminderDays &&
+          other.workoutReminder == this.workoutReminder &&
           other.lastSync == this.lastSync);
 }
 
@@ -5338,6 +5470,10 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
   final Value<String> freetimeIntensity;
   final Value<double> sleepHours;
   final Value<int> dailyMoveGoalCalories;
+  final Value<bool> notificationsEnabled;
+  final Value<bool> moveGoalReminder;
+  final Value<int> weightReminderDays;
+  final Value<bool> workoutReminder;
   final Value<DateTime?> lastSync;
   const UserProfileCompanion({
     this.id = const Value.absent(),
@@ -5358,6 +5494,10 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.freetimeIntensity = const Value.absent(),
     this.sleepHours = const Value.absent(),
     this.dailyMoveGoalCalories = const Value.absent(),
+    this.notificationsEnabled = const Value.absent(),
+    this.moveGoalReminder = const Value.absent(),
+    this.weightReminderDays = const Value.absent(),
+    this.workoutReminder = const Value.absent(),
     this.lastSync = const Value.absent(),
   });
   UserProfileCompanion.insert({
@@ -5379,6 +5519,10 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.freetimeIntensity = const Value.absent(),
     this.sleepHours = const Value.absent(),
     this.dailyMoveGoalCalories = const Value.absent(),
+    this.notificationsEnabled = const Value.absent(),
+    this.moveGoalReminder = const Value.absent(),
+    this.weightReminderDays = const Value.absent(),
+    this.workoutReminder = const Value.absent(),
     this.lastSync = const Value.absent(),
   });
   static Insertable<UserProfileData> custom({
@@ -5400,6 +5544,10 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Expression<String>? freetimeIntensity,
     Expression<double>? sleepHours,
     Expression<int>? dailyMoveGoalCalories,
+    Expression<bool>? notificationsEnabled,
+    Expression<bool>? moveGoalReminder,
+    Expression<int>? weightReminderDays,
+    Expression<bool>? workoutReminder,
     Expression<DateTime>? lastSync,
   }) {
     return RawValuesInsertable({
@@ -5422,6 +5570,12 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       if (sleepHours != null) 'sleep_hours': sleepHours,
       if (dailyMoveGoalCalories != null)
         'daily_move_goal_calories': dailyMoveGoalCalories,
+      if (notificationsEnabled != null)
+        'notifications_enabled': notificationsEnabled,
+      if (moveGoalReminder != null) 'move_goal_reminder': moveGoalReminder,
+      if (weightReminderDays != null)
+        'weight_reminder_days': weightReminderDays,
+      if (workoutReminder != null) 'workout_reminder': workoutReminder,
       if (lastSync != null) 'last_sync': lastSync,
     });
   }
@@ -5445,6 +5599,10 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       Value<String>? freetimeIntensity,
       Value<double>? sleepHours,
       Value<int>? dailyMoveGoalCalories,
+      Value<bool>? notificationsEnabled,
+      Value<bool>? moveGoalReminder,
+      Value<int>? weightReminderDays,
+      Value<bool>? workoutReminder,
       Value<DateTime?>? lastSync}) {
     return UserProfileCompanion(
       id: id ?? this.id,
@@ -5466,6 +5624,10 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       sleepHours: sleepHours ?? this.sleepHours,
       dailyMoveGoalCalories:
           dailyMoveGoalCalories ?? this.dailyMoveGoalCalories,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      moveGoalReminder: moveGoalReminder ?? this.moveGoalReminder,
+      weightReminderDays: weightReminderDays ?? this.weightReminderDays,
+      workoutReminder: workoutReminder ?? this.workoutReminder,
       lastSync: lastSync ?? this.lastSync,
     );
   }
@@ -5528,6 +5690,18 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       map['daily_move_goal_calories'] =
           Variable<int>(dailyMoveGoalCalories.value);
     }
+    if (notificationsEnabled.present) {
+      map['notifications_enabled'] = Variable<bool>(notificationsEnabled.value);
+    }
+    if (moveGoalReminder.present) {
+      map['move_goal_reminder'] = Variable<bool>(moveGoalReminder.value);
+    }
+    if (weightReminderDays.present) {
+      map['weight_reminder_days'] = Variable<int>(weightReminderDays.value);
+    }
+    if (workoutReminder.present) {
+      map['workout_reminder'] = Variable<bool>(workoutReminder.value);
+    }
     if (lastSync.present) {
       map['last_sync'] = Variable<DateTime>(lastSync.value);
     }
@@ -5555,7 +5729,878 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
           ..write('freetimeIntensity: $freetimeIntensity, ')
           ..write('sleepHours: $sleepHours, ')
           ..write('dailyMoveGoalCalories: $dailyMoveGoalCalories, ')
+          ..write('notificationsEnabled: $notificationsEnabled, ')
+          ..write('moveGoalReminder: $moveGoalReminder, ')
+          ..write('weightReminderDays: $weightReminderDays, ')
+          ..write('workoutReminder: $workoutReminder, ')
           ..write('lastSync: $lastSync')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyStepEntriesTable extends DailyStepEntries
+    with TableInfo<$DailyStepEntriesTable, DailyStepEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyStepEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _stepCountMeta =
+      const VerificationMeta('stepCount');
+  @override
+  late final GeneratedColumn<int> stepCount = GeneratedColumn<int>(
+      'step_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _distanceMetersMeta =
+      const VerificationMeta('distanceMeters');
+  @override
+  late final GeneratedColumn<double> distanceMeters = GeneratedColumn<double>(
+      'distance_meters', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _caloriesBurnedMeta =
+      const VerificationMeta('caloriesBurned');
+  @override
+  late final GeneratedColumn<double> caloriesBurned = GeneratedColumn<double>(
+      'calories_burned', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _pendingSyncMeta =
+      const VerificationMeta('pendingSync');
+  @override
+  late final GeneratedColumn<bool> pendingSync = GeneratedColumn<bool>(
+      'pending_sync', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("pending_sync" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, date, stepCount, distanceMeters, caloriesBurned, pendingSync];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_step_entries';
+  @override
+  VerificationContext validateIntegrity(Insertable<DailyStepEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('step_count')) {
+      context.handle(_stepCountMeta,
+          stepCount.isAcceptableOrUnknown(data['step_count']!, _stepCountMeta));
+    }
+    if (data.containsKey('distance_meters')) {
+      context.handle(
+          _distanceMetersMeta,
+          distanceMeters.isAcceptableOrUnknown(
+              data['distance_meters']!, _distanceMetersMeta));
+    }
+    if (data.containsKey('calories_burned')) {
+      context.handle(
+          _caloriesBurnedMeta,
+          caloriesBurned.isAcceptableOrUnknown(
+              data['calories_burned']!, _caloriesBurnedMeta));
+    }
+    if (data.containsKey('pending_sync')) {
+      context.handle(
+          _pendingSyncMeta,
+          pendingSync.isAcceptableOrUnknown(
+              data['pending_sync']!, _pendingSyncMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DailyStepEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyStepEntry(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      stepCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}step_count'])!,
+      distanceMeters: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}distance_meters'])!,
+      caloriesBurned: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}calories_burned'])!,
+      pendingSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}pending_sync'])!,
+    );
+  }
+
+  @override
+  $DailyStepEntriesTable createAlias(String alias) {
+    return $DailyStepEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class DailyStepEntry extends DataClass implements Insertable<DailyStepEntry> {
+  final int id;
+  final DateTime date;
+  final int stepCount;
+  final double distanceMeters;
+  final double caloriesBurned;
+  final bool pendingSync;
+  const DailyStepEntry(
+      {required this.id,
+      required this.date,
+      required this.stepCount,
+      required this.distanceMeters,
+      required this.caloriesBurned,
+      required this.pendingSync});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['date'] = Variable<DateTime>(date);
+    map['step_count'] = Variable<int>(stepCount);
+    map['distance_meters'] = Variable<double>(distanceMeters);
+    map['calories_burned'] = Variable<double>(caloriesBurned);
+    map['pending_sync'] = Variable<bool>(pendingSync);
+    return map;
+  }
+
+  DailyStepEntriesCompanion toCompanion(bool nullToAbsent) {
+    return DailyStepEntriesCompanion(
+      id: Value(id),
+      date: Value(date),
+      stepCount: Value(stepCount),
+      distanceMeters: Value(distanceMeters),
+      caloriesBurned: Value(caloriesBurned),
+      pendingSync: Value(pendingSync),
+    );
+  }
+
+  factory DailyStepEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyStepEntry(
+      id: serializer.fromJson<int>(json['id']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      stepCount: serializer.fromJson<int>(json['stepCount']),
+      distanceMeters: serializer.fromJson<double>(json['distanceMeters']),
+      caloriesBurned: serializer.fromJson<double>(json['caloriesBurned']),
+      pendingSync: serializer.fromJson<bool>(json['pendingSync']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'date': serializer.toJson<DateTime>(date),
+      'stepCount': serializer.toJson<int>(stepCount),
+      'distanceMeters': serializer.toJson<double>(distanceMeters),
+      'caloriesBurned': serializer.toJson<double>(caloriesBurned),
+      'pendingSync': serializer.toJson<bool>(pendingSync),
+    };
+  }
+
+  DailyStepEntry copyWith(
+          {int? id,
+          DateTime? date,
+          int? stepCount,
+          double? distanceMeters,
+          double? caloriesBurned,
+          bool? pendingSync}) =>
+      DailyStepEntry(
+        id: id ?? this.id,
+        date: date ?? this.date,
+        stepCount: stepCount ?? this.stepCount,
+        distanceMeters: distanceMeters ?? this.distanceMeters,
+        caloriesBurned: caloriesBurned ?? this.caloriesBurned,
+        pendingSync: pendingSync ?? this.pendingSync,
+      );
+  DailyStepEntry copyWithCompanion(DailyStepEntriesCompanion data) {
+    return DailyStepEntry(
+      id: data.id.present ? data.id.value : this.id,
+      date: data.date.present ? data.date.value : this.date,
+      stepCount: data.stepCount.present ? data.stepCount.value : this.stepCount,
+      distanceMeters: data.distanceMeters.present
+          ? data.distanceMeters.value
+          : this.distanceMeters,
+      caloriesBurned: data.caloriesBurned.present
+          ? data.caloriesBurned.value
+          : this.caloriesBurned,
+      pendingSync:
+          data.pendingSync.present ? data.pendingSync.value : this.pendingSync,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyStepEntry(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('stepCount: $stepCount, ')
+          ..write('distanceMeters: $distanceMeters, ')
+          ..write('caloriesBurned: $caloriesBurned, ')
+          ..write('pendingSync: $pendingSync')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, date, stepCount, distanceMeters, caloriesBurned, pendingSync);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyStepEntry &&
+          other.id == this.id &&
+          other.date == this.date &&
+          other.stepCount == this.stepCount &&
+          other.distanceMeters == this.distanceMeters &&
+          other.caloriesBurned == this.caloriesBurned &&
+          other.pendingSync == this.pendingSync);
+}
+
+class DailyStepEntriesCompanion extends UpdateCompanion<DailyStepEntry> {
+  final Value<int> id;
+  final Value<DateTime> date;
+  final Value<int> stepCount;
+  final Value<double> distanceMeters;
+  final Value<double> caloriesBurned;
+  final Value<bool> pendingSync;
+  const DailyStepEntriesCompanion({
+    this.id = const Value.absent(),
+    this.date = const Value.absent(),
+    this.stepCount = const Value.absent(),
+    this.distanceMeters = const Value.absent(),
+    this.caloriesBurned = const Value.absent(),
+    this.pendingSync = const Value.absent(),
+  });
+  DailyStepEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime date,
+    this.stepCount = const Value.absent(),
+    this.distanceMeters = const Value.absent(),
+    this.caloriesBurned = const Value.absent(),
+    this.pendingSync = const Value.absent(),
+  }) : date = Value(date);
+  static Insertable<DailyStepEntry> custom({
+    Expression<int>? id,
+    Expression<DateTime>? date,
+    Expression<int>? stepCount,
+    Expression<double>? distanceMeters,
+    Expression<double>? caloriesBurned,
+    Expression<bool>? pendingSync,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (date != null) 'date': date,
+      if (stepCount != null) 'step_count': stepCount,
+      if (distanceMeters != null) 'distance_meters': distanceMeters,
+      if (caloriesBurned != null) 'calories_burned': caloriesBurned,
+      if (pendingSync != null) 'pending_sync': pendingSync,
+    });
+  }
+
+  DailyStepEntriesCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? date,
+      Value<int>? stepCount,
+      Value<double>? distanceMeters,
+      Value<double>? caloriesBurned,
+      Value<bool>? pendingSync}) {
+    return DailyStepEntriesCompanion(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      stepCount: stepCount ?? this.stepCount,
+      distanceMeters: distanceMeters ?? this.distanceMeters,
+      caloriesBurned: caloriesBurned ?? this.caloriesBurned,
+      pendingSync: pendingSync ?? this.pendingSync,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (stepCount.present) {
+      map['step_count'] = Variable<int>(stepCount.value);
+    }
+    if (distanceMeters.present) {
+      map['distance_meters'] = Variable<double>(distanceMeters.value);
+    }
+    if (caloriesBurned.present) {
+      map['calories_burned'] = Variable<double>(caloriesBurned.value);
+    }
+    if (pendingSync.present) {
+      map['pending_sync'] = Variable<bool>(pendingSync.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyStepEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('stepCount: $stepCount, ')
+          ..write('distanceMeters: $distanceMeters, ')
+          ..write('caloriesBurned: $caloriesBurned, ')
+          ..write('pendingSync: $pendingSync')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RunSessionsTable extends RunSessions
+    with TableInfo<$RunSessionsTable, RunSession> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RunSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _startTimeMeta =
+      const VerificationMeta('startTime');
+  @override
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+      'start_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _endTimeMeta =
+      const VerificationMeta('endTime');
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+      'end_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _distanceMetersMeta =
+      const VerificationMeta('distanceMeters');
+  @override
+  late final GeneratedColumn<double> distanceMeters = GeneratedColumn<double>(
+      'distance_meters', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _durationSecondsMeta =
+      const VerificationMeta('durationSeconds');
+  @override
+  late final GeneratedColumn<int> durationSeconds = GeneratedColumn<int>(
+      'duration_seconds', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _caloriesBurnedMeta =
+      const VerificationMeta('caloriesBurned');
+  @override
+  late final GeneratedColumn<double> caloriesBurned = GeneratedColumn<double>(
+      'calories_burned', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _avgPaceMinPerKmMeta =
+      const VerificationMeta('avgPaceMinPerKm');
+  @override
+  late final GeneratedColumn<double> avgPaceMinPerKm = GeneratedColumn<double>(
+      'avg_pace_min_per_km', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _routePointsJsonMeta =
+      const VerificationMeta('routePointsJson');
+  @override
+  late final GeneratedColumn<String> routePointsJson = GeneratedColumn<String>(
+      'route_points_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pendingSyncMeta =
+      const VerificationMeta('pendingSync');
+  @override
+  late final GeneratedColumn<bool> pendingSync = GeneratedColumn<bool>(
+      'pending_sync', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("pending_sync" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        startTime,
+        endTime,
+        distanceMeters,
+        durationSeconds,
+        caloriesBurned,
+        avgPaceMinPerKm,
+        routePointsJson,
+        notes,
+        pendingSync
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'run_sessions';
+  @override
+  VerificationContext validateIntegrity(Insertable<RunSession> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(_startTimeMeta,
+          startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta));
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(_endTimeMeta,
+          endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta));
+    } else if (isInserting) {
+      context.missing(_endTimeMeta);
+    }
+    if (data.containsKey('distance_meters')) {
+      context.handle(
+          _distanceMetersMeta,
+          distanceMeters.isAcceptableOrUnknown(
+              data['distance_meters']!, _distanceMetersMeta));
+    }
+    if (data.containsKey('duration_seconds')) {
+      context.handle(
+          _durationSecondsMeta,
+          durationSeconds.isAcceptableOrUnknown(
+              data['duration_seconds']!, _durationSecondsMeta));
+    }
+    if (data.containsKey('calories_burned')) {
+      context.handle(
+          _caloriesBurnedMeta,
+          caloriesBurned.isAcceptableOrUnknown(
+              data['calories_burned']!, _caloriesBurnedMeta));
+    }
+    if (data.containsKey('avg_pace_min_per_km')) {
+      context.handle(
+          _avgPaceMinPerKmMeta,
+          avgPaceMinPerKm.isAcceptableOrUnknown(
+              data['avg_pace_min_per_km']!, _avgPaceMinPerKmMeta));
+    }
+    if (data.containsKey('route_points_json')) {
+      context.handle(
+          _routePointsJsonMeta,
+          routePointsJson.isAcceptableOrUnknown(
+              data['route_points_json']!, _routePointsJsonMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('pending_sync')) {
+      context.handle(
+          _pendingSyncMeta,
+          pendingSync.isAcceptableOrUnknown(
+              data['pending_sync']!, _pendingSyncMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RunSession map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RunSession(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      startTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start_time'])!,
+      endTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}end_time'])!,
+      distanceMeters: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}distance_meters'])!,
+      durationSeconds: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}duration_seconds'])!,
+      caloriesBurned: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}calories_burned'])!,
+      avgPaceMinPerKm: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}avg_pace_min_per_km'])!,
+      routePointsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}route_points_json'])!,
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      pendingSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}pending_sync'])!,
+    );
+  }
+
+  @override
+  $RunSessionsTable createAlias(String alias) {
+    return $RunSessionsTable(attachedDatabase, alias);
+  }
+}
+
+class RunSession extends DataClass implements Insertable<RunSession> {
+  final int id;
+  final DateTime startTime;
+  final DateTime endTime;
+  final double distanceMeters;
+  final int durationSeconds;
+  final double caloriesBurned;
+  final double avgPaceMinPerKm;
+  final String routePointsJson;
+  final String? notes;
+  final bool pendingSync;
+  const RunSession(
+      {required this.id,
+      required this.startTime,
+      required this.endTime,
+      required this.distanceMeters,
+      required this.durationSeconds,
+      required this.caloriesBurned,
+      required this.avgPaceMinPerKm,
+      required this.routePointsJson,
+      this.notes,
+      required this.pendingSync});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['start_time'] = Variable<DateTime>(startTime);
+    map['end_time'] = Variable<DateTime>(endTime);
+    map['distance_meters'] = Variable<double>(distanceMeters);
+    map['duration_seconds'] = Variable<int>(durationSeconds);
+    map['calories_burned'] = Variable<double>(caloriesBurned);
+    map['avg_pace_min_per_km'] = Variable<double>(avgPaceMinPerKm);
+    map['route_points_json'] = Variable<String>(routePointsJson);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['pending_sync'] = Variable<bool>(pendingSync);
+    return map;
+  }
+
+  RunSessionsCompanion toCompanion(bool nullToAbsent) {
+    return RunSessionsCompanion(
+      id: Value(id),
+      startTime: Value(startTime),
+      endTime: Value(endTime),
+      distanceMeters: Value(distanceMeters),
+      durationSeconds: Value(durationSeconds),
+      caloriesBurned: Value(caloriesBurned),
+      avgPaceMinPerKm: Value(avgPaceMinPerKm),
+      routePointsJson: Value(routePointsJson),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      pendingSync: Value(pendingSync),
+    );
+  }
+
+  factory RunSession.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RunSession(
+      id: serializer.fromJson<int>(json['id']),
+      startTime: serializer.fromJson<DateTime>(json['startTime']),
+      endTime: serializer.fromJson<DateTime>(json['endTime']),
+      distanceMeters: serializer.fromJson<double>(json['distanceMeters']),
+      durationSeconds: serializer.fromJson<int>(json['durationSeconds']),
+      caloriesBurned: serializer.fromJson<double>(json['caloriesBurned']),
+      avgPaceMinPerKm: serializer.fromJson<double>(json['avgPaceMinPerKm']),
+      routePointsJson: serializer.fromJson<String>(json['routePointsJson']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      pendingSync: serializer.fromJson<bool>(json['pendingSync']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'startTime': serializer.toJson<DateTime>(startTime),
+      'endTime': serializer.toJson<DateTime>(endTime),
+      'distanceMeters': serializer.toJson<double>(distanceMeters),
+      'durationSeconds': serializer.toJson<int>(durationSeconds),
+      'caloriesBurned': serializer.toJson<double>(caloriesBurned),
+      'avgPaceMinPerKm': serializer.toJson<double>(avgPaceMinPerKm),
+      'routePointsJson': serializer.toJson<String>(routePointsJson),
+      'notes': serializer.toJson<String?>(notes),
+      'pendingSync': serializer.toJson<bool>(pendingSync),
+    };
+  }
+
+  RunSession copyWith(
+          {int? id,
+          DateTime? startTime,
+          DateTime? endTime,
+          double? distanceMeters,
+          int? durationSeconds,
+          double? caloriesBurned,
+          double? avgPaceMinPerKm,
+          String? routePointsJson,
+          Value<String?> notes = const Value.absent(),
+          bool? pendingSync}) =>
+      RunSession(
+        id: id ?? this.id,
+        startTime: startTime ?? this.startTime,
+        endTime: endTime ?? this.endTime,
+        distanceMeters: distanceMeters ?? this.distanceMeters,
+        durationSeconds: durationSeconds ?? this.durationSeconds,
+        caloriesBurned: caloriesBurned ?? this.caloriesBurned,
+        avgPaceMinPerKm: avgPaceMinPerKm ?? this.avgPaceMinPerKm,
+        routePointsJson: routePointsJson ?? this.routePointsJson,
+        notes: notes.present ? notes.value : this.notes,
+        pendingSync: pendingSync ?? this.pendingSync,
+      );
+  RunSession copyWithCompanion(RunSessionsCompanion data) {
+    return RunSession(
+      id: data.id.present ? data.id.value : this.id,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
+      distanceMeters: data.distanceMeters.present
+          ? data.distanceMeters.value
+          : this.distanceMeters,
+      durationSeconds: data.durationSeconds.present
+          ? data.durationSeconds.value
+          : this.durationSeconds,
+      caloriesBurned: data.caloriesBurned.present
+          ? data.caloriesBurned.value
+          : this.caloriesBurned,
+      avgPaceMinPerKm: data.avgPaceMinPerKm.present
+          ? data.avgPaceMinPerKm.value
+          : this.avgPaceMinPerKm,
+      routePointsJson: data.routePointsJson.present
+          ? data.routePointsJson.value
+          : this.routePointsJson,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      pendingSync:
+          data.pendingSync.present ? data.pendingSync.value : this.pendingSync,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RunSession(')
+          ..write('id: $id, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('distanceMeters: $distanceMeters, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('caloriesBurned: $caloriesBurned, ')
+          ..write('avgPaceMinPerKm: $avgPaceMinPerKm, ')
+          ..write('routePointsJson: $routePointsJson, ')
+          ..write('notes: $notes, ')
+          ..write('pendingSync: $pendingSync')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      startTime,
+      endTime,
+      distanceMeters,
+      durationSeconds,
+      caloriesBurned,
+      avgPaceMinPerKm,
+      routePointsJson,
+      notes,
+      pendingSync);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RunSession &&
+          other.id == this.id &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
+          other.distanceMeters == this.distanceMeters &&
+          other.durationSeconds == this.durationSeconds &&
+          other.caloriesBurned == this.caloriesBurned &&
+          other.avgPaceMinPerKm == this.avgPaceMinPerKm &&
+          other.routePointsJson == this.routePointsJson &&
+          other.notes == this.notes &&
+          other.pendingSync == this.pendingSync);
+}
+
+class RunSessionsCompanion extends UpdateCompanion<RunSession> {
+  final Value<int> id;
+  final Value<DateTime> startTime;
+  final Value<DateTime> endTime;
+  final Value<double> distanceMeters;
+  final Value<int> durationSeconds;
+  final Value<double> caloriesBurned;
+  final Value<double> avgPaceMinPerKm;
+  final Value<String> routePointsJson;
+  final Value<String?> notes;
+  final Value<bool> pendingSync;
+  const RunSessionsCompanion({
+    this.id = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
+    this.distanceMeters = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
+    this.caloriesBurned = const Value.absent(),
+    this.avgPaceMinPerKm = const Value.absent(),
+    this.routePointsJson = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.pendingSync = const Value.absent(),
+  });
+  RunSessionsCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime startTime,
+    required DateTime endTime,
+    this.distanceMeters = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
+    this.caloriesBurned = const Value.absent(),
+    this.avgPaceMinPerKm = const Value.absent(),
+    this.routePointsJson = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.pendingSync = const Value.absent(),
+  })  : startTime = Value(startTime),
+        endTime = Value(endTime);
+  static Insertable<RunSession> custom({
+    Expression<int>? id,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? endTime,
+    Expression<double>? distanceMeters,
+    Expression<int>? durationSeconds,
+    Expression<double>? caloriesBurned,
+    Expression<double>? avgPaceMinPerKm,
+    Expression<String>? routePointsJson,
+    Expression<String>? notes,
+    Expression<bool>? pendingSync,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
+      if (distanceMeters != null) 'distance_meters': distanceMeters,
+      if (durationSeconds != null) 'duration_seconds': durationSeconds,
+      if (caloriesBurned != null) 'calories_burned': caloriesBurned,
+      if (avgPaceMinPerKm != null) 'avg_pace_min_per_km': avgPaceMinPerKm,
+      if (routePointsJson != null) 'route_points_json': routePointsJson,
+      if (notes != null) 'notes': notes,
+      if (pendingSync != null) 'pending_sync': pendingSync,
+    });
+  }
+
+  RunSessionsCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? startTime,
+      Value<DateTime>? endTime,
+      Value<double>? distanceMeters,
+      Value<int>? durationSeconds,
+      Value<double>? caloriesBurned,
+      Value<double>? avgPaceMinPerKm,
+      Value<String>? routePointsJson,
+      Value<String?>? notes,
+      Value<bool>? pendingSync}) {
+    return RunSessionsCompanion(
+      id: id ?? this.id,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      distanceMeters: distanceMeters ?? this.distanceMeters,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      caloriesBurned: caloriesBurned ?? this.caloriesBurned,
+      avgPaceMinPerKm: avgPaceMinPerKm ?? this.avgPaceMinPerKm,
+      routePointsJson: routePointsJson ?? this.routePointsJson,
+      notes: notes ?? this.notes,
+      pendingSync: pendingSync ?? this.pendingSync,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
+    }
+    if (distanceMeters.present) {
+      map['distance_meters'] = Variable<double>(distanceMeters.value);
+    }
+    if (durationSeconds.present) {
+      map['duration_seconds'] = Variable<int>(durationSeconds.value);
+    }
+    if (caloriesBurned.present) {
+      map['calories_burned'] = Variable<double>(caloriesBurned.value);
+    }
+    if (avgPaceMinPerKm.present) {
+      map['avg_pace_min_per_km'] = Variable<double>(avgPaceMinPerKm.value);
+    }
+    if (routePointsJson.present) {
+      map['route_points_json'] = Variable<String>(routePointsJson.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (pendingSync.present) {
+      map['pending_sync'] = Variable<bool>(pendingSync.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RunSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('distanceMeters: $distanceMeters, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('caloriesBurned: $caloriesBurned, ')
+          ..write('avgPaceMinPerKm: $avgPaceMinPerKm, ')
+          ..write('routePointsJson: $routePointsJson, ')
+          ..write('notes: $notes, ')
+          ..write('pendingSync: $pendingSync')
           ..write(')'))
         .toString();
   }
@@ -5579,6 +6624,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $MeasurementCategoriesTable(this);
   late final $MeasurementsTable measurements = $MeasurementsTable(this);
   late final $UserProfileTable userProfile = $UserProfileTable(this);
+  late final $DailyStepEntriesTable dailyStepEntries =
+      $DailyStepEntriesTable(this);
+  late final $RunSessionsTable runSessions = $RunSessionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5597,7 +6645,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         weightEntries,
         measurementCategories,
         measurements,
-        userProfile
+        userProfile,
+        dailyStepEntries,
+        runSessions
       ];
 }
 
@@ -9656,6 +10706,10 @@ typedef $$UserProfileTableCreateCompanionBuilder = UserProfileCompanion
   Value<String> freetimeIntensity,
   Value<double> sleepHours,
   Value<int> dailyMoveGoalCalories,
+  Value<bool> notificationsEnabled,
+  Value<bool> moveGoalReminder,
+  Value<int> weightReminderDays,
+  Value<bool> workoutReminder,
   Value<DateTime?> lastSync,
 });
 typedef $$UserProfileTableUpdateCompanionBuilder = UserProfileCompanion
@@ -9678,6 +10732,10 @@ typedef $$UserProfileTableUpdateCompanionBuilder = UserProfileCompanion
   Value<String> freetimeIntensity,
   Value<double> sleepHours,
   Value<int> dailyMoveGoalCalories,
+  Value<bool> notificationsEnabled,
+  Value<bool> moveGoalReminder,
+  Value<int> weightReminderDays,
+  Value<bool> workoutReminder,
   Value<DateTime?> lastSync,
 });
 
@@ -9745,6 +10803,22 @@ class $$UserProfileTableFilterComposer
 
   ColumnFilters<int> get dailyMoveGoalCalories => $composableBuilder(
       column: $table.dailyMoveGoalCalories,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get notificationsEnabled => $composableBuilder(
+      column: $table.notificationsEnabled,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get moveGoalReminder => $composableBuilder(
+      column: $table.moveGoalReminder,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get weightReminderDays => $composableBuilder(
+      column: $table.weightReminderDays,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get workoutReminder => $composableBuilder(
+      column: $table.workoutReminder,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get lastSync => $composableBuilder(
@@ -9820,6 +10894,22 @@ class $$UserProfileTableOrderingComposer
       column: $table.dailyMoveGoalCalories,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get notificationsEnabled => $composableBuilder(
+      column: $table.notificationsEnabled,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get moveGoalReminder => $composableBuilder(
+      column: $table.moveGoalReminder,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get weightReminderDays => $composableBuilder(
+      column: $table.weightReminderDays,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get workoutReminder => $composableBuilder(
+      column: $table.workoutReminder,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get lastSync => $composableBuilder(
       column: $table.lastSync, builder: (column) => ColumnOrderings(column));
 }
@@ -9887,6 +10977,18 @@ class $$UserProfileTableAnnotationComposer
   GeneratedColumn<int> get dailyMoveGoalCalories => $composableBuilder(
       column: $table.dailyMoveGoalCalories, builder: (column) => column);
 
+  GeneratedColumn<bool> get notificationsEnabled => $composableBuilder(
+      column: $table.notificationsEnabled, builder: (column) => column);
+
+  GeneratedColumn<bool> get moveGoalReminder => $composableBuilder(
+      column: $table.moveGoalReminder, builder: (column) => column);
+
+  GeneratedColumn<int> get weightReminderDays => $composableBuilder(
+      column: $table.weightReminderDays, builder: (column) => column);
+
+  GeneratedColumn<bool> get workoutReminder => $composableBuilder(
+      column: $table.workoutReminder, builder: (column) => column);
+
   GeneratedColumn<DateTime> get lastSync =>
       $composableBuilder(column: $table.lastSync, builder: (column) => column);
 }
@@ -9935,6 +11037,10 @@ class $$UserProfileTableTableManager extends RootTableManager<
             Value<String> freetimeIntensity = const Value.absent(),
             Value<double> sleepHours = const Value.absent(),
             Value<int> dailyMoveGoalCalories = const Value.absent(),
+            Value<bool> notificationsEnabled = const Value.absent(),
+            Value<bool> moveGoalReminder = const Value.absent(),
+            Value<int> weightReminderDays = const Value.absent(),
+            Value<bool> workoutReminder = const Value.absent(),
             Value<DateTime?> lastSync = const Value.absent(),
           }) =>
               UserProfileCompanion(
@@ -9956,6 +11062,10 @@ class $$UserProfileTableTableManager extends RootTableManager<
             freetimeIntensity: freetimeIntensity,
             sleepHours: sleepHours,
             dailyMoveGoalCalories: dailyMoveGoalCalories,
+            notificationsEnabled: notificationsEnabled,
+            moveGoalReminder: moveGoalReminder,
+            weightReminderDays: weightReminderDays,
+            workoutReminder: workoutReminder,
             lastSync: lastSync,
           ),
           createCompanionCallback: ({
@@ -9977,6 +11087,10 @@ class $$UserProfileTableTableManager extends RootTableManager<
             Value<String> freetimeIntensity = const Value.absent(),
             Value<double> sleepHours = const Value.absent(),
             Value<int> dailyMoveGoalCalories = const Value.absent(),
+            Value<bool> notificationsEnabled = const Value.absent(),
+            Value<bool> moveGoalReminder = const Value.absent(),
+            Value<int> weightReminderDays = const Value.absent(),
+            Value<bool> workoutReminder = const Value.absent(),
             Value<DateTime?> lastSync = const Value.absent(),
           }) =>
               UserProfileCompanion.insert(
@@ -9998,6 +11112,10 @@ class $$UserProfileTableTableManager extends RootTableManager<
             freetimeIntensity: freetimeIntensity,
             sleepHours: sleepHours,
             dailyMoveGoalCalories: dailyMoveGoalCalories,
+            notificationsEnabled: notificationsEnabled,
+            moveGoalReminder: moveGoalReminder,
+            weightReminderDays: weightReminderDays,
+            workoutReminder: workoutReminder,
             lastSync: lastSync,
           ),
           withReferenceMapper: (p0) => p0
@@ -10021,6 +11139,439 @@ typedef $$UserProfileTableProcessedTableManager = ProcessedTableManager<
       BaseReferences<_$AppDatabase, $UserProfileTable, UserProfileData>
     ),
     UserProfileData,
+    PrefetchHooks Function()>;
+typedef $$DailyStepEntriesTableCreateCompanionBuilder
+    = DailyStepEntriesCompanion Function({
+  Value<int> id,
+  required DateTime date,
+  Value<int> stepCount,
+  Value<double> distanceMeters,
+  Value<double> caloriesBurned,
+  Value<bool> pendingSync,
+});
+typedef $$DailyStepEntriesTableUpdateCompanionBuilder
+    = DailyStepEntriesCompanion Function({
+  Value<int> id,
+  Value<DateTime> date,
+  Value<int> stepCount,
+  Value<double> distanceMeters,
+  Value<double> caloriesBurned,
+  Value<bool> pendingSync,
+});
+
+class $$DailyStepEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyStepEntriesTable> {
+  $$DailyStepEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get stepCount => $composableBuilder(
+      column: $table.stepCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get distanceMeters => $composableBuilder(
+      column: $table.distanceMeters,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get caloriesBurned => $composableBuilder(
+      column: $table.caloriesBurned,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => ColumnFilters(column));
+}
+
+class $$DailyStepEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyStepEntriesTable> {
+  $$DailyStepEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get stepCount => $composableBuilder(
+      column: $table.stepCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get distanceMeters => $composableBuilder(
+      column: $table.distanceMeters,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get caloriesBurned => $composableBuilder(
+      column: $table.caloriesBurned,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DailyStepEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyStepEntriesTable> {
+  $$DailyStepEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<int> get stepCount =>
+      $composableBuilder(column: $table.stepCount, builder: (column) => column);
+
+  GeneratedColumn<double> get distanceMeters => $composableBuilder(
+      column: $table.distanceMeters, builder: (column) => column);
+
+  GeneratedColumn<double> get caloriesBurned => $composableBuilder(
+      column: $table.caloriesBurned, builder: (column) => column);
+
+  GeneratedColumn<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => column);
+}
+
+class $$DailyStepEntriesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DailyStepEntriesTable,
+    DailyStepEntry,
+    $$DailyStepEntriesTableFilterComposer,
+    $$DailyStepEntriesTableOrderingComposer,
+    $$DailyStepEntriesTableAnnotationComposer,
+    $$DailyStepEntriesTableCreateCompanionBuilder,
+    $$DailyStepEntriesTableUpdateCompanionBuilder,
+    (
+      DailyStepEntry,
+      BaseReferences<_$AppDatabase, $DailyStepEntriesTable, DailyStepEntry>
+    ),
+    DailyStepEntry,
+    PrefetchHooks Function()> {
+  $$DailyStepEntriesTableTableManager(
+      _$AppDatabase db, $DailyStepEntriesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyStepEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyStepEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyStepEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
+            Value<int> stepCount = const Value.absent(),
+            Value<double> distanceMeters = const Value.absent(),
+            Value<double> caloriesBurned = const Value.absent(),
+            Value<bool> pendingSync = const Value.absent(),
+          }) =>
+              DailyStepEntriesCompanion(
+            id: id,
+            date: date,
+            stepCount: stepCount,
+            distanceMeters: distanceMeters,
+            caloriesBurned: caloriesBurned,
+            pendingSync: pendingSync,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required DateTime date,
+            Value<int> stepCount = const Value.absent(),
+            Value<double> distanceMeters = const Value.absent(),
+            Value<double> caloriesBurned = const Value.absent(),
+            Value<bool> pendingSync = const Value.absent(),
+          }) =>
+              DailyStepEntriesCompanion.insert(
+            id: id,
+            date: date,
+            stepCount: stepCount,
+            distanceMeters: distanceMeters,
+            caloriesBurned: caloriesBurned,
+            pendingSync: pendingSync,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DailyStepEntriesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DailyStepEntriesTable,
+    DailyStepEntry,
+    $$DailyStepEntriesTableFilterComposer,
+    $$DailyStepEntriesTableOrderingComposer,
+    $$DailyStepEntriesTableAnnotationComposer,
+    $$DailyStepEntriesTableCreateCompanionBuilder,
+    $$DailyStepEntriesTableUpdateCompanionBuilder,
+    (
+      DailyStepEntry,
+      BaseReferences<_$AppDatabase, $DailyStepEntriesTable, DailyStepEntry>
+    ),
+    DailyStepEntry,
+    PrefetchHooks Function()>;
+typedef $$RunSessionsTableCreateCompanionBuilder = RunSessionsCompanion
+    Function({
+  Value<int> id,
+  required DateTime startTime,
+  required DateTime endTime,
+  Value<double> distanceMeters,
+  Value<int> durationSeconds,
+  Value<double> caloriesBurned,
+  Value<double> avgPaceMinPerKm,
+  Value<String> routePointsJson,
+  Value<String?> notes,
+  Value<bool> pendingSync,
+});
+typedef $$RunSessionsTableUpdateCompanionBuilder = RunSessionsCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> startTime,
+  Value<DateTime> endTime,
+  Value<double> distanceMeters,
+  Value<int> durationSeconds,
+  Value<double> caloriesBurned,
+  Value<double> avgPaceMinPerKm,
+  Value<String> routePointsJson,
+  Value<String?> notes,
+  Value<bool> pendingSync,
+});
+
+class $$RunSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $RunSessionsTable> {
+  $$RunSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startTime => $composableBuilder(
+      column: $table.startTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get distanceMeters => $composableBuilder(
+      column: $table.distanceMeters,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationSeconds => $composableBuilder(
+      column: $table.durationSeconds,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get caloriesBurned => $composableBuilder(
+      column: $table.caloriesBurned,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get avgPaceMinPerKm => $composableBuilder(
+      column: $table.avgPaceMinPerKm,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get routePointsJson => $composableBuilder(
+      column: $table.routePointsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => ColumnFilters(column));
+}
+
+class $$RunSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $RunSessionsTable> {
+  $$RunSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+      column: $table.startTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+      column: $table.endTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get distanceMeters => $composableBuilder(
+      column: $table.distanceMeters,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationSeconds => $composableBuilder(
+      column: $table.durationSeconds,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get caloriesBurned => $composableBuilder(
+      column: $table.caloriesBurned,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get avgPaceMinPerKm => $composableBuilder(
+      column: $table.avgPaceMinPerKm,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get routePointsJson => $composableBuilder(
+      column: $table.routePointsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => ColumnOrderings(column));
+}
+
+class $$RunSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RunSessionsTable> {
+  $$RunSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
+
+  GeneratedColumn<double> get distanceMeters => $composableBuilder(
+      column: $table.distanceMeters, builder: (column) => column);
+
+  GeneratedColumn<int> get durationSeconds => $composableBuilder(
+      column: $table.durationSeconds, builder: (column) => column);
+
+  GeneratedColumn<double> get caloriesBurned => $composableBuilder(
+      column: $table.caloriesBurned, builder: (column) => column);
+
+  GeneratedColumn<double> get avgPaceMinPerKm => $composableBuilder(
+      column: $table.avgPaceMinPerKm, builder: (column) => column);
+
+  GeneratedColumn<String> get routePointsJson => $composableBuilder(
+      column: $table.routePointsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<bool> get pendingSync => $composableBuilder(
+      column: $table.pendingSync, builder: (column) => column);
+}
+
+class $$RunSessionsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RunSessionsTable,
+    RunSession,
+    $$RunSessionsTableFilterComposer,
+    $$RunSessionsTableOrderingComposer,
+    $$RunSessionsTableAnnotationComposer,
+    $$RunSessionsTableCreateCompanionBuilder,
+    $$RunSessionsTableUpdateCompanionBuilder,
+    (RunSession, BaseReferences<_$AppDatabase, $RunSessionsTable, RunSession>),
+    RunSession,
+    PrefetchHooks Function()> {
+  $$RunSessionsTableTableManager(_$AppDatabase db, $RunSessionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RunSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RunSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RunSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> startTime = const Value.absent(),
+            Value<DateTime> endTime = const Value.absent(),
+            Value<double> distanceMeters = const Value.absent(),
+            Value<int> durationSeconds = const Value.absent(),
+            Value<double> caloriesBurned = const Value.absent(),
+            Value<double> avgPaceMinPerKm = const Value.absent(),
+            Value<String> routePointsJson = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<bool> pendingSync = const Value.absent(),
+          }) =>
+              RunSessionsCompanion(
+            id: id,
+            startTime: startTime,
+            endTime: endTime,
+            distanceMeters: distanceMeters,
+            durationSeconds: durationSeconds,
+            caloriesBurned: caloriesBurned,
+            avgPaceMinPerKm: avgPaceMinPerKm,
+            routePointsJson: routePointsJson,
+            notes: notes,
+            pendingSync: pendingSync,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required DateTime startTime,
+            required DateTime endTime,
+            Value<double> distanceMeters = const Value.absent(),
+            Value<int> durationSeconds = const Value.absent(),
+            Value<double> caloriesBurned = const Value.absent(),
+            Value<double> avgPaceMinPerKm = const Value.absent(),
+            Value<String> routePointsJson = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<bool> pendingSync = const Value.absent(),
+          }) =>
+              RunSessionsCompanion.insert(
+            id: id,
+            startTime: startTime,
+            endTime: endTime,
+            distanceMeters: distanceMeters,
+            durationSeconds: durationSeconds,
+            caloriesBurned: caloriesBurned,
+            avgPaceMinPerKm: avgPaceMinPerKm,
+            routePointsJson: routePointsJson,
+            notes: notes,
+            pendingSync: pendingSync,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$RunSessionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $RunSessionsTable,
+    RunSession,
+    $$RunSessionsTableFilterComposer,
+    $$RunSessionsTableOrderingComposer,
+    $$RunSessionsTableAnnotationComposer,
+    $$RunSessionsTableCreateCompanionBuilder,
+    $$RunSessionsTableUpdateCompanionBuilder,
+    (RunSession, BaseReferences<_$AppDatabase, $RunSessionsTable, RunSession>),
+    RunSession,
     PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
@@ -10054,4 +11605,8 @@ class $AppDatabaseManager {
       $$MeasurementsTableTableManager(_db, _db.measurements);
   $$UserProfileTableTableManager get userProfile =>
       $$UserProfileTableTableManager(_db, _db.userProfile);
+  $$DailyStepEntriesTableTableManager get dailyStepEntries =>
+      $$DailyStepEntriesTableTableManager(_db, _db.dailyStepEntries);
+  $$RunSessionsTableTableManager get runSessions =>
+      $$RunSessionsTableTableManager(_db, _db.runSessions);
 }

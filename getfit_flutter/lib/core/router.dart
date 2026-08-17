@@ -16,6 +16,8 @@ import '../features/nutrition/screens/ingredient_search_screen.dart';
 import '../features/measurements/screens/measurements_screen.dart';
 import '../features/charts/charts_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/runs/screens/run_history_screen.dart';
+import '../features/runs/screens/run_tracker_screen.dart';
 import '../shared/widgets/main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -40,6 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+      GoRoute(path: '/run-tracker', builder: (_, __) => const RunTrackerScreen()),
 
       // Main shell with bottom nav
       ShellRoute(
@@ -88,6 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               path: '/measurements',
               builder: (_, __) => const MeasurementsScreen()),
           GoRoute(path: '/charts', builder: (_, __) => const ChartsScreen()),
+          GoRoute(path: '/runs', builder: (_, __) => const RunHistoryScreen()),
           GoRoute(
               path: '/settings',
               builder: (_, __) => const SettingsScreen()),
