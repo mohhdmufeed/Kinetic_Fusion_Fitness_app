@@ -4857,6 +4857,15 @@ class $UserProfileTable extends UserProfile
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("workout_reminder" IN (0, 1))'),
       defaultValue: const Constant(true));
+  static const VerificationMeta _summaryLayoutMeta =
+      const VerificationMeta('summaryLayout');
+  @override
+  late final GeneratedColumn<String> summaryLayout = GeneratedColumn<String>(
+      'summary_layout', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(
+          '["ring","steps","distance","sessions","awards","quote"]'));
   static const VerificationMeta _lastSyncMeta =
       const VerificationMeta('lastSync');
   @override
@@ -4887,6 +4896,7 @@ class $UserProfileTable extends UserProfile
         moveGoalReminder,
         weightReminderDays,
         workoutReminder,
+        summaryLayout,
         lastSync
       ];
   @override
@@ -5014,6 +5024,12 @@ class $UserProfileTable extends UserProfile
           workoutReminder.isAcceptableOrUnknown(
               data['workout_reminder']!, _workoutReminderMeta));
     }
+    if (data.containsKey('summary_layout')) {
+      context.handle(
+          _summaryLayoutMeta,
+          summaryLayout.isAcceptableOrUnknown(
+              data['summary_layout']!, _summaryLayoutMeta));
+    }
     if (data.containsKey('last_sync')) {
       context.handle(_lastSyncMeta,
           lastSync.isAcceptableOrUnknown(data['last_sync']!, _lastSyncMeta));
@@ -5071,6 +5087,8 @@ class $UserProfileTable extends UserProfile
           DriftSqlType.int, data['${effectivePrefix}weight_reminder_days'])!,
       workoutReminder: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}workout_reminder'])!,
+      summaryLayout: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}summary_layout'])!,
       lastSync: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}last_sync']),
     );
@@ -5105,6 +5123,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
   final bool moveGoalReminder;
   final int weightReminderDays;
   final bool workoutReminder;
+  final String summaryLayout;
   final DateTime? lastSync;
   const UserProfileData(
       {required this.id,
@@ -5129,6 +5148,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       required this.moveGoalReminder,
       required this.weightReminderDays,
       required this.workoutReminder,
+      required this.summaryLayout,
       this.lastSync});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5161,6 +5181,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
     map['move_goal_reminder'] = Variable<bool>(moveGoalReminder);
     map['weight_reminder_days'] = Variable<int>(weightReminderDays);
     map['workout_reminder'] = Variable<bool>(workoutReminder);
+    map['summary_layout'] = Variable<String>(summaryLayout);
     if (!nullToAbsent || lastSync != null) {
       map['last_sync'] = Variable<DateTime>(lastSync);
     }
@@ -5197,6 +5218,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       moveGoalReminder: Value(moveGoalReminder),
       weightReminderDays: Value(weightReminderDays),
       workoutReminder: Value(workoutReminder),
+      summaryLayout: Value(summaryLayout),
       lastSync: lastSync == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSync),
@@ -5231,6 +5253,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       moveGoalReminder: serializer.fromJson<bool>(json['moveGoalReminder']),
       weightReminderDays: serializer.fromJson<int>(json['weightReminderDays']),
       workoutReminder: serializer.fromJson<bool>(json['workoutReminder']),
+      summaryLayout: serializer.fromJson<String>(json['summaryLayout']),
       lastSync: serializer.fromJson<DateTime?>(json['lastSync']),
     );
   }
@@ -5260,6 +5283,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       'moveGoalReminder': serializer.toJson<bool>(moveGoalReminder),
       'weightReminderDays': serializer.toJson<int>(weightReminderDays),
       'workoutReminder': serializer.toJson<bool>(workoutReminder),
+      'summaryLayout': serializer.toJson<String>(summaryLayout),
       'lastSync': serializer.toJson<DateTime?>(lastSync),
     };
   }
@@ -5287,6 +5311,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           bool? moveGoalReminder,
           int? weightReminderDays,
           bool? workoutReminder,
+          String? summaryLayout,
           Value<DateTime?> lastSync = const Value.absent()}) =>
       UserProfileData(
         id: id ?? this.id,
@@ -5312,6 +5337,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
         moveGoalReminder: moveGoalReminder ?? this.moveGoalReminder,
         weightReminderDays: weightReminderDays ?? this.weightReminderDays,
         workoutReminder: workoutReminder ?? this.workoutReminder,
+        summaryLayout: summaryLayout ?? this.summaryLayout,
         lastSync: lastSync.present ? lastSync.value : this.lastSync,
       );
   UserProfileData copyWithCompanion(UserProfileCompanion data) {
@@ -5362,6 +5388,9 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
       workoutReminder: data.workoutReminder.present
           ? data.workoutReminder.value
           : this.workoutReminder,
+      summaryLayout: data.summaryLayout.present
+          ? data.summaryLayout.value
+          : this.summaryLayout,
       lastSync: data.lastSync.present ? data.lastSync.value : this.lastSync,
     );
   }
@@ -5391,6 +5420,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           ..write('moveGoalReminder: $moveGoalReminder, ')
           ..write('weightReminderDays: $weightReminderDays, ')
           ..write('workoutReminder: $workoutReminder, ')
+          ..write('summaryLayout: $summaryLayout, ')
           ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
@@ -5420,6 +5450,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
         moveGoalReminder,
         weightReminderDays,
         workoutReminder,
+        summaryLayout,
         lastSync
       ]);
   @override
@@ -5448,6 +5479,7 @@ class UserProfileData extends DataClass implements Insertable<UserProfileData> {
           other.moveGoalReminder == this.moveGoalReminder &&
           other.weightReminderDays == this.weightReminderDays &&
           other.workoutReminder == this.workoutReminder &&
+          other.summaryLayout == this.summaryLayout &&
           other.lastSync == this.lastSync);
 }
 
@@ -5474,6 +5506,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
   final Value<bool> moveGoalReminder;
   final Value<int> weightReminderDays;
   final Value<bool> workoutReminder;
+  final Value<String> summaryLayout;
   final Value<DateTime?> lastSync;
   const UserProfileCompanion({
     this.id = const Value.absent(),
@@ -5498,6 +5531,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.moveGoalReminder = const Value.absent(),
     this.weightReminderDays = const Value.absent(),
     this.workoutReminder = const Value.absent(),
+    this.summaryLayout = const Value.absent(),
     this.lastSync = const Value.absent(),
   });
   UserProfileCompanion.insert({
@@ -5523,6 +5557,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     this.moveGoalReminder = const Value.absent(),
     this.weightReminderDays = const Value.absent(),
     this.workoutReminder = const Value.absent(),
+    this.summaryLayout = const Value.absent(),
     this.lastSync = const Value.absent(),
   });
   static Insertable<UserProfileData> custom({
@@ -5548,6 +5583,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     Expression<bool>? moveGoalReminder,
     Expression<int>? weightReminderDays,
     Expression<bool>? workoutReminder,
+    Expression<String>? summaryLayout,
     Expression<DateTime>? lastSync,
   }) {
     return RawValuesInsertable({
@@ -5576,6 +5612,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       if (weightReminderDays != null)
         'weight_reminder_days': weightReminderDays,
       if (workoutReminder != null) 'workout_reminder': workoutReminder,
+      if (summaryLayout != null) 'summary_layout': summaryLayout,
       if (lastSync != null) 'last_sync': lastSync,
     });
   }
@@ -5603,6 +5640,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       Value<bool>? moveGoalReminder,
       Value<int>? weightReminderDays,
       Value<bool>? workoutReminder,
+      Value<String>? summaryLayout,
       Value<DateTime?>? lastSync}) {
     return UserProfileCompanion(
       id: id ?? this.id,
@@ -5628,6 +5666,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
       moveGoalReminder: moveGoalReminder ?? this.moveGoalReminder,
       weightReminderDays: weightReminderDays ?? this.weightReminderDays,
       workoutReminder: workoutReminder ?? this.workoutReminder,
+      summaryLayout: summaryLayout ?? this.summaryLayout,
       lastSync: lastSync ?? this.lastSync,
     );
   }
@@ -5702,6 +5741,9 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
     if (workoutReminder.present) {
       map['workout_reminder'] = Variable<bool>(workoutReminder.value);
     }
+    if (summaryLayout.present) {
+      map['summary_layout'] = Variable<String>(summaryLayout.value);
+    }
     if (lastSync.present) {
       map['last_sync'] = Variable<DateTime>(lastSync.value);
     }
@@ -5733,6 +5775,7 @@ class UserProfileCompanion extends UpdateCompanion<UserProfileData> {
           ..write('moveGoalReminder: $moveGoalReminder, ')
           ..write('weightReminderDays: $weightReminderDays, ')
           ..write('workoutReminder: $workoutReminder, ')
+          ..write('summaryLayout: $summaryLayout, ')
           ..write('lastSync: $lastSync')
           ..write(')'))
         .toString();
@@ -10710,6 +10753,7 @@ typedef $$UserProfileTableCreateCompanionBuilder = UserProfileCompanion
   Value<bool> moveGoalReminder,
   Value<int> weightReminderDays,
   Value<bool> workoutReminder,
+  Value<String> summaryLayout,
   Value<DateTime?> lastSync,
 });
 typedef $$UserProfileTableUpdateCompanionBuilder = UserProfileCompanion
@@ -10736,6 +10780,7 @@ typedef $$UserProfileTableUpdateCompanionBuilder = UserProfileCompanion
   Value<bool> moveGoalReminder,
   Value<int> weightReminderDays,
   Value<bool> workoutReminder,
+  Value<String> summaryLayout,
   Value<DateTime?> lastSync,
 });
 
@@ -10820,6 +10865,9 @@ class $$UserProfileTableFilterComposer
   ColumnFilters<bool> get workoutReminder => $composableBuilder(
       column: $table.workoutReminder,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get summaryLayout => $composableBuilder(
+      column: $table.summaryLayout, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get lastSync => $composableBuilder(
       column: $table.lastSync, builder: (column) => ColumnFilters(column));
@@ -10910,6 +10958,10 @@ class $$UserProfileTableOrderingComposer
       column: $table.workoutReminder,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get summaryLayout => $composableBuilder(
+      column: $table.summaryLayout,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get lastSync => $composableBuilder(
       column: $table.lastSync, builder: (column) => ColumnOrderings(column));
 }
@@ -10989,6 +11041,9 @@ class $$UserProfileTableAnnotationComposer
   GeneratedColumn<bool> get workoutReminder => $composableBuilder(
       column: $table.workoutReminder, builder: (column) => column);
 
+  GeneratedColumn<String> get summaryLayout => $composableBuilder(
+      column: $table.summaryLayout, builder: (column) => column);
+
   GeneratedColumn<DateTime> get lastSync =>
       $composableBuilder(column: $table.lastSync, builder: (column) => column);
 }
@@ -11041,6 +11096,7 @@ class $$UserProfileTableTableManager extends RootTableManager<
             Value<bool> moveGoalReminder = const Value.absent(),
             Value<int> weightReminderDays = const Value.absent(),
             Value<bool> workoutReminder = const Value.absent(),
+            Value<String> summaryLayout = const Value.absent(),
             Value<DateTime?> lastSync = const Value.absent(),
           }) =>
               UserProfileCompanion(
@@ -11066,6 +11122,7 @@ class $$UserProfileTableTableManager extends RootTableManager<
             moveGoalReminder: moveGoalReminder,
             weightReminderDays: weightReminderDays,
             workoutReminder: workoutReminder,
+            summaryLayout: summaryLayout,
             lastSync: lastSync,
           ),
           createCompanionCallback: ({
@@ -11091,6 +11148,7 @@ class $$UserProfileTableTableManager extends RootTableManager<
             Value<bool> moveGoalReminder = const Value.absent(),
             Value<int> weightReminderDays = const Value.absent(),
             Value<bool> workoutReminder = const Value.absent(),
+            Value<String> summaryLayout = const Value.absent(),
             Value<DateTime?> lastSync = const Value.absent(),
           }) =>
               UserProfileCompanion.insert(
@@ -11116,6 +11174,7 @@ class $$UserProfileTableTableManager extends RootTableManager<
             moveGoalReminder: moveGoalReminder,
             weightReminderDays: weightReminderDays,
             workoutReminder: workoutReminder,
+            summaryLayout: summaryLayout,
             lastSync: lastSync,
           ),
           withReferenceMapper: (p0) => p0

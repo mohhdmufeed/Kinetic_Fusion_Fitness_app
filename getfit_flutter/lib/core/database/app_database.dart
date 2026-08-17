@@ -196,6 +196,9 @@ class UserProfile extends Table {
   IntColumn get weightReminderDays => integer().withDefault(const Constant(7))();
   BoolColumn get workoutReminder => boolean().withDefault(const Constant(true))();
 
+  // Customizable Summary Layout
+  TextColumn get summaryLayout => text().withDefault(const Constant('["ring","steps","distance","sessions","awards","quote"]'))();
+
   DateTimeColumn get lastSync => dateTime().nullable()();
 }
 
