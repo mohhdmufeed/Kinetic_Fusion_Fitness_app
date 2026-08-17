@@ -1,0 +1,207 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:drift/drift.dart' as drift;
+import '../../core/database/app_database.dart';
+import '../../shared/widgets/personal_info_form.dart';
+
+class OnboardingScreen extends ConsumerStatefulWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  final _formKey = GlobalKey<FormState>();
+  PersonalInfoData _data = PersonalInfoData();
+  bool _saving = false;
+
+  Future<void> _saveAndContinue() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+
+    try {
+      final db = ref.read(databaseProvider);
+      await db.saveUserProfile(
+        UserProfileCompanion(
+          birthDate: drift.Value(_data.birthDate),
+          sex: drift.Value(_data.sex),
+          heightCm: drift.Value(_data.heightCm),
+          weightKg: drift.Value(_data.weightKg),
+          weightUnit: drift.Value(_data.weightUnit),
+        ),
+      );
+
+      // If weight was provided, also log a weight entry into WeightEntries table
+      if (_data.weightKg != null && _data.weightKg! > 0) {
+        await db.insertWeightEntry(
+          WeightEntriesCompanion.insert(
+            weight: _data.weightKg!,
+            date: drift.Value(DateTime.now()),
+            notes: const drift.Value('Initial onboarding weight'),
+            pendingSync: const drift.Value(true),
+          ),
+        );
+      }
+    } catch (_) {}
+
+    if (mounted) {
+      context.go('/dashboard');
+    }
+  }
+
+  void _skip() {
+    context.go('/dashboard');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const navyColor = Color(0xFF26496C);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF9FAFB),
+      appBar: AppBar(
+        title: const Text('Personal Info'),
+        backgroundColor: navyColor,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          TextButton(
+            onPressed: _skip,
+            child: const Text(
+              'Skip',
+              style: TextStyle(
+                color: Colors.white70,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: navyColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.person_pin,
+                              color: navyColor,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Tell us about yourself',
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Help us customize your fitness goals',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 32),
+
+                      // Reusable Personal Info Form
+                      PersonalInfoForm(
+                        initialData: _data,
+                        formKey: _formKey,
+                        onChanged: (updated) {
+                          _data = updated;
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Continue Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _saving ? null : _saveAndContinue,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: navyColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: _saving
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continue to Dashboard',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Skip for now link
+                      Center(
+                        child: TextButton(
+                          onPressed: _skip,
+                          child: Text(
+                            'Skip for now',
+                            style: TextStyle(
+                              color: isDark ? Colors.white60 : Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
