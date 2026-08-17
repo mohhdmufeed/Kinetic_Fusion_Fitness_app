@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["python312", "libpq"]
-
-[phases.install]
-cmds = ["pip install gunicorn && pip install -e ."]
-
-[start]
-cmd = "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn wger.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
