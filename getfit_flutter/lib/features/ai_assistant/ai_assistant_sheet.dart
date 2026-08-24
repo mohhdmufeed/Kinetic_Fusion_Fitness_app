@@ -216,7 +216,7 @@ class _AIAssistantSheetState extends State<AIAssistantSheet> {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        'On-device biometric & sports intelligence',
+                        'On-device athletic & training intelligence',
                         style: TextStyle(color: Color(0xFF8E9094), fontSize: 11),
                       ),
                     ],

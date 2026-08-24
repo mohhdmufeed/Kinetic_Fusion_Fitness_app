@@ -51,12 +51,6 @@ dependencies:
   # Icons
   cupertino_icons: ^1.0.6
 
-  # App lock — biometric / face auth
-  local_auth: ^2.3.0
-
-  # Cryptography — SHA-256 for PIN hashing
-  crypto: ^3.0.3
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -220,7 +220,7 @@ class _SessionSummaryDialogState extends ConsumerState<SessionSummaryDialog> {
 
                 // Route Map Preview Canvas
                 if (widget.routePoints.isNotEmpty) ...[
-                  const Text('GPS Route Map', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  const Text('Route Map', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 8),
                   Container(
                     height: 160,

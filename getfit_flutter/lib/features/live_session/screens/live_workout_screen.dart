@@ -56,17 +56,7 @@ class _LiveWorkoutScreenState extends ConsumerState<LiveWorkoutScreen> {
       if (!_isPaused) {
         setState(() {
           _activeSeconds++;
-          // Simulate GPS coordinate progression
-          final baseLat = 37.7749 + (_activeSeconds * 0.00003);
-          final baseLng = -122.4194 + (_activeSeconds * 0.00004);
-          _routePoints.add(GpsPoint(
-            latitude: baseLat,
-            longitude: baseLng,
-            timestamp: DateTime.now(),
-            speed: 2.8,
-          ));
-
-          _distanceMeters = _activeSeconds * 2.8; // ~10 km/h
+          _distanceMeters = _activeSeconds * 2.8; // ~10 km/h estimated pacing
           _caloriesBurned = _activeSeconds * 0.18; // ~11 kcal/min
           final distKm = _distanceMeters / 1000.0;
           _currentPace = distKm > 0 ? (_activeSeconds / 60.0) / distKm : 0.0;
@@ -204,11 +194,16 @@ class _LiveWorkoutScreenState extends ConsumerState<LiveWorkoutScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.gps_fixed_rounded, size: 48, color: Color(0xFF38BDF8)),
+                              Icon(Icons.directions_run_rounded, size: 48, color: Color(0xFF38BDF8)),
                               SizedBox(height: 12),
                               Text(
-                                'GPS Connected & Ready',
-                                style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+                                'Cardio Session Telemetry',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                '🛰️ Live GPS Map — Hardware integration coming soon',
+                                style: TextStyle(color: Colors.white60, fontSize: 11),
                               ),
                             ],
                           ),

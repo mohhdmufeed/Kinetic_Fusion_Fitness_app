@@ -45,7 +45,7 @@ class CategoriesHubScreen extends StatelessWidget {
     ),
     CategoryTileItem(
       title: 'Running',
-      subtitle: 'GPS routes & pace',
+      subtitle: 'Distance & pace tracking',
       icon: '🏃',
       color: Color(0xFF0284C7),
       route: '/categories/report/running',

@@ -94,7 +94,7 @@ class _RunHistoryScreenState extends ConsumerState<RunHistoryScreen> {
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'GPS Route Replay',
+                        points.isNotEmpty ? 'Route Replay' : 'Cardio Session Summary',
                         style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                       ),
                     ],
@@ -106,7 +106,7 @@ class _RunHistoryScreenState extends ConsumerState<RunHistoryScreen> {
                 ],
               ),
             ),
-            // Map Canvas
+            // Map / Telemetry Canvas
             Expanded(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -116,13 +116,32 @@ class _RunHistoryScreenState extends ConsumerState<RunHistoryScreen> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: CustomPaint(
-                    size: Size.infinite,
-                    painter: RoutePolylinePainter(
-                      route: points,
-                      isRunning: false,
-                    ),
-                  ),
+                  child: points.isNotEmpty
+                      ? CustomPaint(
+                          size: Size.infinite,
+                          painter: RoutePolylinePainter(
+                            route: points,
+                            isRunning: false,
+                          ),
+                        )
+                      : Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.directions_run_rounded, size: 48, color: Color(0xFF859463)),
+                              SizedBox(height: 12),
+                              Text(
+                                'Cardio Session Recorded',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Telemetry saved to local SQLite store',
+                                style: TextStyle(color: Colors.white54, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -167,7 +186,7 @@ class _RunHistoryScreenState extends ConsumerState<RunHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Run History'),
+        title: const Text('Session History'),
         backgroundColor: navyColor,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -187,7 +206,7 @@ class _RunHistoryScreenState extends ConsumerState<RunHistoryScreen> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Start your first GPS run to track routes, distance & pace',
+                        'Start your first run to track duration, distance & pace',
                         style: TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 24),

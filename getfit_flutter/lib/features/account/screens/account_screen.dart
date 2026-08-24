@@ -350,7 +350,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Biometric Health Profile', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                            const Text('Personal Health Profile', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                             IconButton(
                               icon: const Icon(Icons.edit_outlined, color: AppColors.primary, size: 20),
                               onPressed: _openEditPersonalInfo,

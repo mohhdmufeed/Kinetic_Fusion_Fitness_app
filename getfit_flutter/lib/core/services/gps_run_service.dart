@@ -174,53 +174,16 @@ class GpsRunService {
 
   void _tick(double userWeightKg) {
     final newDuration = _session.durationSeconds + 1;
-    
-    // If no real GPS hardware active (e.g. simulator), simulate steady running movement ~2.6 m/s (~9.3 km/h)
-    double newDistance = _session.distanceMeters;
-    List<GpsPoint> updatedRoute = List<GpsPoint>.from(_session.route);
-    
-    if (_session.route.isEmpty) {
-      // Start near a default coordinate
-      const baseLat = 37.7749;
-      const baseLng = -122.4194;
-      final p = GpsPoint(
-        latitude: baseLat,
-        longitude: baseLng,
-        timestamp: DateTime.now(),
-        speed: 2.6,
-      );
-      updatedRoute.add(p);
-    } else {
-      // Simulate realistic step forward in route
-      final last = updatedRoute.last;
-      final deltaLat = 0.000025 * sin(newDuration * 0.1);
-      final deltaLng = 0.000030 * cos(newDuration * 0.1);
-      final nextLat = last.latitude + deltaLat;
-      final nextLng = last.longitude + deltaLng;
-      
-      final deltaMeters = _calculateDistanceMeters(last.latitude, last.longitude, nextLat, nextLng);
-      newDistance += deltaMeters > 0 ? deltaMeters : 2.5;
-      
-      if (newDuration % 3 == 0) {
-        updatedRoute.add(GpsPoint(
-          latitude: nextLat,
-          longitude: nextLng,
-          timestamp: DateTime.now(),
-          speed: 2.6,
-        ));
-      }
-    }
+    final newDistance = _session.distanceMeters;
 
-    final avgPace = newDistance > 10 ? (newDuration / 60.0) / (newDistance / 1000.0) : 5.5;
+    final avgPace = newDistance > 10 ? (newDuration / 60.0) / (newDistance / 1000.0) : 0.0;
     final calories = (newDistance / 1000.0) * userWeightKg * 1.036;
 
     _session = _session.copyWith(
       durationSeconds: newDuration,
       distanceMeters: newDistance,
-      currentPaceMinPerKm: 5.5,
       avgPaceMinPerKm: avgPace,
       caloriesBurned: calories,
-      route: updatedRoute,
     );
     _sessionController.add(_session);
   }

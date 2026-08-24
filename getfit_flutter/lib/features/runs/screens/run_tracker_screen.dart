@@ -51,7 +51,7 @@ class _RunTrackerScreenState extends ConsumerState<RunTrackerScreen> {
 
   Future<void> _finishRun(ActiveRunSession session) async {
     final service = ref.read(gpsRunServiceProvider);
-    await service.stopAndSaveRun(notes: 'Completed GPS Run');
+    await service.stopAndSaveRun(notes: 'Completed Cardio Run');
 
     if (!mounted) return;
     showDialog(
@@ -114,7 +114,7 @@ class _RunTrackerScreenState extends ConsumerState<RunTrackerScreen> {
         return Scaffold(
           backgroundColor: const Color(0xFF1b2e44),
           appBar: AppBar(
-            title: const Text('GPS Run Tracker'),
+            title: const Text('Run & Cardio Tracker'),
             backgroundColor: navyColor,
             foregroundColor: Colors.white,
             elevation: 0,
@@ -122,13 +122,13 @@ class _RunTrackerScreenState extends ConsumerState<RunTrackerScreen> {
               IconButton(
                 icon: const Icon(Icons.history_rounded),
                 onPressed: () => context.push('/runs'),
-                tooltip: 'Run History',
+                tooltip: 'Session History',
               ),
             ],
           ),
           body: Column(
             children: [
-              // Top Map Route Canvas
+              // Top Session Visual Canvas
               Expanded(
                 flex: 5,
                 child: Container(
@@ -136,16 +136,67 @@ class _RunTrackerScreenState extends ConsumerState<RunTrackerScreen> {
                   color: const Color(0xFF101c2b),
                   child: Stack(
                     children: [
-                      // Polyline Map Route Painter
-                      CustomPaint(
-                        size: Size.infinite,
-                        painter: RoutePolylinePainter(
-                          route: session.route,
-                          isRunning: isRunning,
+                      // Active Cardio Telemetry Display
+                      if (session.route.isNotEmpty)
+                        CustomPaint(
+                          size: Size.infinite,
+                          painter: RoutePolylinePainter(
+                            route: session.route,
+                            isRunning: isRunning,
+                          ),
+                        )
+                      else
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 72,
+                                height: 72,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: (isRunning ? AppColors.primary : Colors.white12).withOpacity(0.15),
+                                  border: Border.all(
+                                    color: isRunning ? AppColors.primary : Colors.white24,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.directions_run_rounded,
+                                  size: 38,
+                                  color: isRunning ? AppColors.primary : Colors.white60,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                isRunning ? 'Cardio Session in Progress' : 'Ready to Start Session',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  '🛰️ Live GPS Map — Hardware integration coming soon',
+                                  style: TextStyle(
+                                    color: Colors.white60,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
 
-                      // GPS Status Badge
+                      // Session Status Badge
                       Positioned(
                         top: 16,
                         left: 16,
@@ -163,15 +214,15 @@ class _RunTrackerScreenState extends ConsumerState<RunTrackerScreen> {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: isRunning ? Colors.greenAccent : Colors.amberAccent,
+                                  color: isRunning ? Colors.greenAccent : (isPaused ? Colors.amberAccent : Colors.grey),
                                   shape: BoxShape.circle,
                                 ),
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 isRunning
-                                    ? 'GPS Tracking Active'
-                                    : (isPaused ? 'GPS Paused' : 'Ready to Start'),
+                                    ? 'Session Active'
+                                    : (isPaused ? 'Session Paused' : 'Ready to Start'),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,

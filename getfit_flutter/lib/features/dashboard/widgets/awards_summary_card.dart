@@ -26,7 +26,7 @@ class _AwardsSummaryCardState extends State<AwardsSummaryCard> {
   final List<TrophyItem> _trophies = const [
     TrophyItem(title: 'First Step', description: 'Log your very first workout in Kinetic Fusion', icon: '🥇', isEarned: true),
     TrophyItem(title: 'Move Master', description: 'Hit your daily active move goal', icon: '🔥', isEarned: true),
-    TrophyItem(title: 'Century Runner', description: 'Complete a 5+ km GPS run', icon: '🏃', isEarned: true),
+    TrophyItem(title: 'Century Runner', description: 'Complete a 5+ km cardio run', icon: '🏃', isEarned: true),
     TrophyItem(title: 'Nutrition Tracker', description: 'Log 3 meals in food diary', icon: '🥗', isEarned: true),
     TrophyItem(title: 'Consistency King', description: 'Work out 4 days in a single week', icon: '👑', isEarned: false),
     TrophyItem(title: 'Iron Lifter', description: 'Log over 1,000 kg total volume in a session', icon: '🏋️', isEarned: false),

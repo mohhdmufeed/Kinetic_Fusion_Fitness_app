@@ -714,7 +714,7 @@ class _YouScreenState extends ConsumerState<YouScreen> {
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Privacy Policy: All biometric records remain 100% on-device.'),
+                              content: Text('Privacy Policy: All personal fitness records remain 100% on-device.'),
                               duration: Duration(seconds: 2),
                             ),
                           );
