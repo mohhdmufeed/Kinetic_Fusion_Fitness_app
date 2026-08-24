@@ -24,7 +24,7 @@ class AwardsSummaryCard extends StatefulWidget {
 
 class _AwardsSummaryCardState extends State<AwardsSummaryCard> {
   final List<TrophyItem> _trophies = const [
-    TrophyItem(title: 'First Step', description: 'Log your very first workout in GetFit', icon: '🥇', isEarned: true),
+    TrophyItem(title: 'First Step', description: 'Log your very first workout in Kinetic Fusion', icon: '🥇', isEarned: true),
     TrophyItem(title: 'Move Master', description: 'Hit your daily active move goal', icon: '🔥', isEarned: true),
     TrophyItem(title: 'Century Runner', description: 'Complete a 5+ km GPS run', icon: '🏃', isEarned: true),
     TrophyItem(title: 'Nutrition Tracker', description: 'Log 3 meals in food diary', icon: '🥗', isEarned: true),

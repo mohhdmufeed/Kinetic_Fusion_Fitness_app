@@ -313,7 +313,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     ),
                                   )
                                 : const Text(
-                                    'Finish Setup & Open GetFit',
+                                    'Finish Setup & Open Kinetic Fusion',
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,

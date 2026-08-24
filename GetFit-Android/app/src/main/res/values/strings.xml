@@ -1,5 +1,0 @@
-<resources>
-    <string name="app_name">GetFit</string>
-    <!-- Change this URL to your live Railway.app URL or testing URL -->
-    <string name="web_url">https://apk--production.up.railway.app</string>
-</resources>

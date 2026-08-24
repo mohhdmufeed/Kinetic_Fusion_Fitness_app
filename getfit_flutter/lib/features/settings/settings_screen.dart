@@ -264,7 +264,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Text(_username ?? 'Loading...',
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700)),
-                      const Text('GetFit account',
+                      const Text('Kinetic Fusion account',
                           style: TextStyle(color: Colors.grey, fontSize: 13)),
                     ],
                   ),
@@ -509,7 +509,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 24),
 
           Center(
-            child: Text('GetFit v1.0.0',
+            child: Text('Kinetic Fusion v1.0.0',
                 style: TextStyle(
                     color: Theme.of(context)
                         .colorScheme
