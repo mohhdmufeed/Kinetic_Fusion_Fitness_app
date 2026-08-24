@@ -1,448 +1,231 @@
-# Backend Setup Instructions
+# Kinetic Fusion — Backend Setup & Architecture Guide
 
-Use this guide to set up the backend for this project using **Supabase**, **Drizzle ORM**, and **Next.js Server Actions**.
-
-This guide is split into two configurations:
-- **Part 1: Online Setup (Supabase Cloud)**
-- **Part 2: Offline / Local Development Setup (Supabase CLI / Local Postgres)**
-- **Part 3: Project Setup & Code Implementation (Shared)**
+Complete, step-by-step documentation for deploying, configuring, and operating the **Kinetic Fusion Backend Engine**. This backend powers the **Kinetic Fusion Mobile App (Flutter)** with dual JWT authentication, authoritative changelog sync, exercise taxonomy, and intelligence telemetry.
 
 ---
 
-## Helpful Links
-- [Supabase Docs](https://supabase.com/docs)
-- [Drizzle Docs](https://orm.drizzle.team/docs/overview)
-- [Drizzle with Supabase Quickstart](https://orm.drizzle.team/learn/tutorials/drizzle-with-supabase)
-- [Supabase CLI Local Development](https://supabase.com/docs/guides/local-development)
+## 🏗️ Architecture Overview
+
+Kinetic Fusion utilizes a **hybrid local-first architecture**:
+1. **Mobile App**: Executes all intelligence, calculations, and local queries autonomously against an on-device Drift SQLite database.
+2. **Backend Engine**: A hardened **Django 6.0 REST API** providing central authentication, multi-device changelog synchronization, reference exercise databases, and analytics telemetry.
+
+```
+┌────────────────────────────────────────────────────────┐
+│               Kinetic Fusion Mobile App                │
+│       - On-Device SQLite (Drift) & Secure Storage      │
+└───────────────────────────┬────────────────────────────┘
+                            │ HTTP/HTTPS + Bearer JWT
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             Kinetic Fusion Backend Engine              │
+│  - /api/v2/auth/*      (Dual JWT: Access & Refresh)    │
+│  - /api/v2/sync/*      (Authoritative ChangeLog Engine)│
+│  - /api/v2/exercise/*  (872+ Exercises & Translations) │
+│  - /api/v2/routine/*   (Routines & Workouts)           │
+│  - /api/v2/nutrition/* (Closed Nutrition & Diary)      │
+│  - /api/v2/activity/*  (GPS Telemetry & Pedometer)     │
+└───────────────────────────┬────────────────────────────┘
+                            ▼
+              [ SQLite / PostgreSQL DB ]
+```
 
 ---
 
-## Install Libraries
+## Part 1: Offline / Local Development Setup
 
-Install the required dependencies in your Next.js project:
+Use this setup to run the backend on your development computer for testing with Android Studio Emulators or Physical Devices over Wi-Fi.
+
+### 1.1 Virtual Environment & Dependencies
+
+From the project root:
 
 ```bash
-npm i drizzle-orm dotenv postgres
-npm i -D drizzle-kit
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+# Or with Python directly
+.\.venv\Scripts\python.exe -m pip install -e .
 ```
 
 ---
 
-## Environment Configuration
+### 1.2 Run Database Migrations
 
-### Option A: Online Version (Supabase Cloud)
+Initialize the local database schema:
 
-1. Create a project at [supabase.com](https://supabase.com/).
-2. Go to **Project Settings** > **Database** > **Connection string**.
-3. Use the **Transaction Pooler** connection string (recommended for Serverless / Next.js) or Direct Connection string.
-4. Create `.env.local` in your root directory:
+```bash
+.\.venv\Scripts\python.exe manage.py migrate --settings=settings.local_dev
+```
+
+---
+
+### 1.3 Seed Reference Data & Exercise Library
+
+Populate all 872 English exercise records, categories, muscle anatomy, and license metadata:
+
+```bash
+.\.venv\Scripts\python.exe manage.py loaddata languages.json licenses.json setting_repetition_units.json setting_weight_units.json categories.json equipment.json muscles.json exercise-base-data.json translations.json --settings=settings.local_dev
+```
+
+---
+
+### 1.4 Bootstrap System Config & Test User
+
+Run the bootstrap command to link the default gym and create a testing account:
+
+```bash
+.\.venv\Scripts\python.exe manage.py shell --settings=settings.local_dev -c "from wger.gym.models import Gym; from wger.config.models.gym_config import GymConfig; gym, _ = Gym.objects.get_or_create(id=1, defaults={'name':'Kinetic Fusion HQ'}); gc, _ = GymConfig.objects.get_or_create(id=1); gc.default_gym = gym; gc.save(); from django.contrib.auth.models import User; u, _ = User.objects.get_or_create(username='kinetic_user', defaults={'email':'test@kineticprecision.com'}); u.set_password('KineticPass123!'); u.save(); print('Bootstrap Complete. Test User:', u.username)"
+```
+
+---
+
+### 1.5 Start the Local Backend Server
+
+```bash
+.\.venv\Scripts\python.exe -u manage.py runserver 0.0.0.0:8000 --settings=settings.local_dev --noreload
+```
+
+- **Local URL:** `http://127.0.0.1:8000/`
+- **Network Interface:** `http://0.0.0.0:8000/`
+
+---
+
+## Part 2: Online / Cloud Production Setup
+
+For deploying Kinetic Fusion on Cloud VPS, Railway, Render, AWS, or Docker.
+
+### 2.1 Environment Configuration (`.env`)
+
+Create a production `.env` file in the root directory:
 
 ```env
-# Supabase Cloud Database URL (Direct or Transaction Pooler via port 6543/5432)
-DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres"
+# Security
+DJANGO_SECRET_KEY="your-production-secret-key-at-least-50-characters"
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS="api.yourdomain.com,your-railway-app.up.railway.app"
 
-# Optional Supabase API keys (if client SDK is needed)
-NEXT_PUBLIC_SUPABASE_URL="https://[PROJECT-REF].supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+# Database (PostgreSQL)
+DJANGO_DB_ENGINE="django_prometheus.db.backends.postgresql"
+DJANGO_DB_NAME="kinetic_fusion_db"
+DJANGO_DB_USER="postgres"
+DJANGO_DB_PASSWORD="your-secure-db-password"
+DJANGO_DB_HOST="your-db-host.internal"
+DJANGO_DB_PORT=5432
+
+# CORS & CSRF Origins
+CORS_ALLOWED_ORIGINS="https://your-frontend.com,http://localhost:8080"
+CSRF_TRUSTED_ORIGINS="https://api.yourdomain.com,https://your-railway-app.up.railway.app"
+
+# JWT Token Lifetime
+SIMPLE_JWT_ACCESS_DAYS=7
+SIMPLE_JWT_REFRESH_DAYS=30
 ```
 
 ---
 
-### Option B: Offline / Local Version (Supabase CLI & Local Postgres)
+### 2.2 Docker Production Deployment
 
-1. Install Supabase CLI (if not already installed):
-   ```bash
-   npm i -D supabase
-   ```
-2. Initialize Supabase in your project:
-   ```bash
-   npx supabase init
-   ```
-3. Start the local Supabase container (requires Docker):
-   ```bash
-   npx supabase start
-   ```
-4. Create `.env.local` in your root directory pointing to the local postgres instance:
+Using Docker Compose from the root:
 
-```env
-# Local Supabase Postgres Connection URL
-DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+```bash
+# Build and start all services (App, PostgreSQL, Redis, Celery)
+docker compose -f extras/docker/production/docker-compose.yml up -d --build
 
-# Local Supabase API keys (output by `supabase start`)
-NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-local-anon-key"
-```
+# Run initial migrations in container
+docker compose -f extras/docker/production/docker-compose.yml exec web python manage.py migrate
 
-> **Local Studio**: You can view and manage your local database table interface at `http://127.0.0.1:54323`.
-
----
-
-## Setup Steps
-
-### 1. Folder Structure
-- [ ] Create `/db` folder in the root of the project
-- [ ] Create `/db/schema` folder
-- [ ] Create `/db/queries` folder
-- [ ] Create `/types` folder in the root of the project
-- [ ] Create `/types/actions` folder
-- [ ] Create `/actions` folder in the root of the project
-
----
-
-### 2. Drizzle Configuration
-
-- [ ] Add `drizzle.config.ts` to the root of the project:
-
-```ts
-import { config } from "dotenv";
-import { defineConfig } from "drizzle-kit";
-
-config({ path: ".env.local" });
-
-export default defineConfig({
-  schema: "./db/schema/index.ts",
-  out: "./db/migrations",
-  dialect: "postgresql",
-  dbCredentials: {
-    url: process.env.DATABASE_URL!
-  }
-});
+# Seed exercise data in container
+docker compose -f extras/docker/production/docker-compose.yml exec web python manage.py loaddata languages.json licenses.json setting_repetition_units.json setting_weight_units.json categories.json equipment.json muscles.json exercise-base-data.json translations.json
 ```
 
 ---
 
-### 3. Database Connection Client
+## Part 3: API & Authentication Reference for APK
 
-- [ ] Create `db/db.ts`:
+All endpoints are versioned under `/api/v2/`.
 
-```ts
-import { config } from "dotenv";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import * as schema from "./schema";
+### 3.1 Authentication Endpoints
 
-config({ path: ".env.local" });
-
-const client = postgres(process.env.DATABASE_URL!);
-
-export const db = drizzle(client, { schema });
-```
+| Method | Endpoint | Description | Payload | Response |
+|---|---|---|---|---|
+| `POST` | `/api/v2/auth/signup/` | Register new user account | `{"username": "...", "email": "...", "password": "..."}` | `{"detail": "Verification email sent.", "verification_token": "..."}` |
+| `POST` | `/api/v2/auth/login/` | Issue JWT access & refresh tokens | `{"username": "...", "password": "..."}` | `{"access": "jwt...", "refresh": "jwt...", "user_id": 1, "username": "..."}` |
+| `POST` | `/api/v2/auth/refresh/` | Rotate access token | `{"refresh": "jwt_refresh_token"}` | `{"access": "new_jwt_access_token"}` |
+| `POST` | `/api/v2/auth/logout/` | Revoke active device token | `{"refresh": "jwt_refresh_token"}` | `{"detail": "Session revoked."}` |
+| `POST` | `/api/v2/auth/logout-all/`| Revoke all active user sessions | Headers: `Authorization: Bearer <token>` | `{"detail": "All sessions revoked."}` |
 
 ---
 
-### 4. Database Schemas
+### 3.2 Core Data & Sync Endpoints
 
-- [ ] Create `db/schema/example-schema.ts`:
-
-```ts
-import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-
-export const exampleTable = pgTable("example", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  age: integer("age").notNull(),
-  email: text("email").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdate(() => new Date())
-});
-
-export type InsertExample = typeof exampleTable.$inferInsert;
-export type SelectExample = typeof exampleTable.$inferSelect;
-```
-
-- [ ] Create `db/schema/index.ts` to export all schemas:
-
-```ts
-export * from "./example-schema";
-```
+| Method | Endpoint | Query Parameters / Payload | Description |
+|---|---|---|---|
+| `GET` | `/api/v2/exerciseinfo/` | `language=2&limit=100&offset=0` | Paginated exercise library with names, muscles & instructions |
+| `GET` | `/api/v2/routine/` | Header: `Authorization: Bearer <token>` | List user's saved routines and split days |
+| `POST` | `/api/v2/routine/` | `{"name": "Upper Body Strength", "description": "..."}` | Create a workout routine |
+| `GET` | `/api/v2/workoutlog/` | `date__gte=YYYY-MM-DD` | Fetch historical workout logs |
+| `POST` | `/api/v2/workoutlog/` | `{"exercise": 1, "reps": 10, "weight": 80.0, "date": "..."}` | Record a completed set |
+| `POST` | `/api/v2/sync/pull/` | `{"last_sync": "2026-08-24T00:00:00Z"}` | Pull delta changelogs for offline sync |
+| `POST` | `/api/v2/sync/push/` | `{"changes": [...]}` | Push locally created logs to authoritative server |
+| `GET` | `/api/v2/dashboard/today/` | Header: `Authorization: Bearer <token>` | Fetch consolidated daily telemetry payload |
 
 ---
 
-### 5. Queries Layer
+## Part 4: Connecting the Mobile APK to the Backend
 
-- [ ] Create `db/queries/example-queries.ts`:
+In the Flutter project (`getfit_flutter/`), configure your endpoint in [`lib/core/constants.dart`](file:///c:/Users/mohdm/Downloads/wger-master/getfit_flutter/lib/core/constants.dart):
 
-```ts
-"use server";
+```dart
+class AppConstants {
+  // Option A: Android Studio Emulator (Host loopback)
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
-import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { exampleTable, InsertExample, SelectExample } from "../schema/example-schema";
+  // Option B: Physical Device over Wi-Fi LAN (Replace with host IP)
+  // static const String baseUrl = 'http://192.168.1.150:8000';
 
-export const createExample = async (data: InsertExample) => {
-  try {
-    const [newExample] = await db.insert(exampleTable).values(data).returning();
-    return newExample;
-  } catch (error) {
-    console.error("Error creating example:", error);
-    throw new Error("Failed to create example");
-  }
-};
+  // Option C: Online Cloud Server
+  // static const String baseUrl = 'https://api.yourdomain.com';
 
-export const getExampleById = async (id: string) => {
-  try {
-    const example = await db.query.exampleTable.findFirst({
-      where: eq(exampleTable.id, id)
-    });
-    if (!example) {
-      throw new Error("Example not found");
-    }
-    return example;
-  } catch (error) {
-    console.error("Error getting example by ID:", error);
-    throw new Error("Failed to get example");
-  }
-};
-
-export const getAllExamples = async (): Promise<SelectExample[]> => {
-  return db.query.exampleTable.findMany();
-};
-
-export const updateExample = async (id: string, data: Partial<InsertExample>) => {
-  try {
-    const [updatedExample] = await db
-      .update(exampleTable)
-      .set(data)
-      .where(eq(exampleTable.id, id))
-      .returning();
-    return updatedExample;
-  } catch (error) {
-    console.error("Error updating example:", error);
-    throw new Error("Failed to update example");
-  }
-};
-
-export const deleteExample = async (id: string) => {
-  try {
-    await db.delete(exampleTable).where(eq(exampleTable.id, id));
-  } catch (error) {
-    console.error("Error deleting example:", error);
-    throw new Error("Failed to delete example");
-  }
-};
-```
-
----
-
-### 6. Migrations Setup & Execution
-
-- [ ] In `package.json`, add the following scripts:
-
-```json
-"scripts": {
-  "db:generate": "npx drizzle-kit generate",
-  "db:migrate": "npx drizzle-kit migrate"
+  static const String apiBase = '$baseUrl/api/v2';
+  ...
 }
 ```
 
-- [ ] Generate migration SQL files:
-  ```bash
-  npm run db:generate
-  ```
+### Android Manifest Network Configuration
+Cleartext traffic is enabled in [`getfit_flutter/android/app/src/main/AndroidManifest.xml`](file:///c:/Users/mohdm/Downloads/wger-master/getfit_flutter/android/app/src/main/AndroidManifest.xml) for local development:
 
-- [ ] Run migration against the target database (Cloud or Local based on `.env.local`):
-  ```bash
-  npm run db:migrate
-  ```
-
----
-
-### 7. Types Definition
-
-- [ ] Create `types/actions/action-types.ts`:
-
-```ts
-export type ActionState<T = any> = {
-  status: "success" | "error";
-  message: string;
-  data?: T;
-};
-```
-
-- [ ] Create `types/index.ts`:
-
-```ts
-export * from "./actions/action-types";
+```xml
+<application
+    android:label="Kinetic Fusion"
+    android:usesCleartextTraffic="true"
+    ... >
 ```
 
 ---
 
-### 8. Server Actions
+## Part 5: Verification & Automated Test Commands
 
-- [ ] Create `actions/example-actions.ts`:
+### 1. Verify Backend Login & JWT Token Output
 
-```ts
-"use server";
-
-import {
-  createExample,
-  deleteExample,
-  getAllExamples,
-  getExampleById,
-  updateExample
-} from "@/db/queries/example-queries";
-import { InsertExample, SelectExample } from "@/db/schema/example-schema";
-import { ActionState } from "@/types";
-import { revalidatePath } from "next/cache";
-
-export async function createExampleAction(data: InsertExample): Promise<ActionState<SelectExample>> {
-  try {
-    const newExample = await createExample(data);
-    revalidatePath("/examples");
-    return { status: "success", message: "Example created successfully", data: newExample };
-  } catch (error) {
-    return { status: "error", message: "Failed to create example" };
-  }
-}
-
-export async function getExampleByIdAction(id: string): Promise<ActionState<SelectExample>> {
-  try {
-    const example = await getExampleById(id);
-    return { status: "success", message: "Example retrieved successfully", data: example };
-  } catch (error) {
-    return { status: "error", message: "Failed to get example" };
-  }
-}
-
-export async function getAllExamplesAction(): Promise<ActionState<SelectExample[]>> {
-  try {
-    const examples = await getAllExamples();
-    return { status: "success", message: "Examples retrieved successfully", data: examples };
-  } catch (error) {
-    return { status: "error", message: "Failed to get examples" };
-  }
-}
-
-export async function updateExampleAction(
-  id: string,
-  data: Partial<InsertExample>
-): Promise<ActionState<SelectExample>> {
-  try {
-    const updatedExample = await updateExample(id, data);
-    revalidatePath("/examples");
-    return { status: "success", message: "Example updated successfully", data: updatedExample };
-  } catch (error) {
-    return { status: "error", message: "Failed to update example" };
-  }
-}
-
-export async function deleteExampleAction(id: string): Promise<ActionState<void>> {
-  try {
-    await deleteExample(id);
-    revalidatePath("/examples");
-    return { status: "success", message: "Example deleted successfully" };
-  } catch (error) {
-    return { status: "error", message: "Failed to delete example" };
-  }
-}
+```bash
+.\.venv\Scripts\python.exe -c "import urllib.request, json; data = json.dumps({'username': 'kinetic_user', 'password': 'KineticPass123!'}).encode('utf-8'); req = urllib.request.Request('http://127.0.0.1:8000/api/v2/auth/login/', data=data, headers={'Content-Type': 'application/json'}); res = json.loads(urllib.request.urlopen(req).read().decode('utf-8')); print('Login SUCCESS! Token:', res.get('access')[:30] + '...')"
 ```
 
 ---
 
-### 9. Verification & Manual Testing Page
+### 2. Verify Exercise Taxonomy API (872 Exercises)
 
-- [ ] Implement server actions test interface in `app/page.tsx`:
-
-```tsx
-"use client";
-
-import { useState, useTransition } from "react";
-import {
-  createExampleAction,
-  getAllExamplesAction,
-  deleteExampleAction
-} from "@/actions/example-actions";
-
-export default function Home() {
-  const [name, setName] = useState("");
-  const [age, setAge] = useState<number>(25);
-  const [email, setEmail] = useState("");
-  const [items, setItems] = useState<any[]>([]);
-  const [message, setMessage] = useState("");
-  const [isPending, startTransition] = useTransition();
-
-  const handleFetch = () => {
-    startTransition(async () => {
-      const res = await getAllExamplesAction();
-      if (res.status === "success" && res.data) {
-        setItems(res.data);
-      }
-      setMessage(res.message);
-    });
-  };
-
-  const handleCreate = () => {
-    startTransition(async () => {
-      const res = await createExampleAction({ name, age: Number(age), email });
-      setMessage(res.message);
-      if (res.status === "success") {
-        setName("");
-        setEmail("");
-        handleFetch();
-      }
-    });
-  };
-
-  const handleDelete = (id: string) => {
-    startTransition(async () => {
-      const res = await deleteExampleAction(id);
-      setMessage(res.message);
-      handleFetch();
-    });
-  };
-
-  return (
-    <main style={{ maxWidth: 600, margin: "40px auto", fontFamily: "sans-serif" }}>
-      <h1>Backend Setup Verification</h1>
-      {message && <p style={{ padding: 8, background: "#f0f0f0" }}>{message}</p>}
-
-      <section style={{ marginBottom: 24, display: "flex", flexDirection: "column", gap: 8 }}>
-        <h2>Create Item</h2>
-        <input
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          placeholder="Age"
-          type="number"
-          value={age}
-          onChange={(e) => setAge(Number(e.target.value))}
-        />
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button onClick={handleCreate} disabled={isPending}>
-          {isPending ? "Submitting..." : "Create Example"}
-        </button>
-      </section>
-
-      <section>
-        <h2>Existing Items</h2>
-        <button onClick={handleFetch} disabled={isPending}>
-          Load All Items
-        </button>
-        <ul>
-          {items.map((item) => (
-            <li key={item.id} style={{ margin: "8px 0" }}>
-              <strong>{item.name}</strong> ({item.age}) - {item.email}
-              <button
-                onClick={() => handleDelete(item.id)}
-                style={{ marginLeft: 12, color: "red" }}
-                disabled={isPending}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
-  );
-}
+```bash
+.\.venv\Scripts\python.exe -c "import urllib.request, json; login = json.dumps({'username': 'kinetic_user', 'password': 'KineticPass123!'}).encode('utf-8'); token = json.loads(urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/api/v2/auth/login/', data=login, headers={'Content-Type': 'application/json'})).read().decode('utf-8'))['access']; ex = json.loads(urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/api/v2/exerciseinfo/?language=2', headers={'Authorization': 'Bearer ' + token})).read().decode('utf-8')); print('Exercises API Success! Total records:', ex.get('count'))"
 ```
+
+---
+
+### 3. Run Mobile App Unit Test Suite (167 Tests)
+
+```bash
+cd getfit_flutter
+flutter test
+```
+*Expected Result:* `00:12 +167: All tests passed!`
