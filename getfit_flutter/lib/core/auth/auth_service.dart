@@ -116,10 +116,17 @@ class AuthService {
       String username, String password, String email, {String? displayName}) async {
     final trimmedUser = username.trim();
     final trimmedPass = password.trim();
-    final trimmedEmail = email.trim();
+    final trimmedEmail = email.trim().toLowerCase();
 
     if (trimmedUser.isEmpty || trimmedPass.length < 10) {
       return {'success': false, 'error': 'Password must be at least 10 characters.'};
+    }
+
+    // Check local duplicate registration
+    final existingUser = await _read('reg_pwd_$trimmedUser');
+    final existingEmailUser = await _read('reg_email_map_$trimmedEmail');
+    if (existingUser != null || existingEmailUser != null) {
+      return {'success': false, 'error': 'An account with this username or email already exists.'};
     }
 
     try {
@@ -140,6 +147,8 @@ class AuthService {
       if (resp.statusCode == 201) {
         await _write(_usernameKey, trimmedUser);
         await _write(_userEmailKey, trimmedEmail);
+        await _write('reg_pwd_$trimmedUser', trimmedPass);
+        await _write('reg_email_map_$trimmedEmail', trimmedUser);
         return {
           'success': true,
           'detail': resp.data['detail'] ?? 'Verification email sent.',
@@ -148,32 +157,36 @@ class AuthService {
       }
     } catch (e) {
       if (e is DioException && e.response?.data != null) {
-        return {'success': false, 'error': e.response?.data.toString() ?? 'Registration failed.'};
+        final err = e.response?.data.toString() ?? 'Registration failed.';
+        return {'success': false, 'error': err};
       }
     }
 
-    // Offline registration simulation fallback (for zero-cloud operation)
+    // Offline registration persistence (account must be registered before login)
     final mockToken = 'jwt_access_${DateTime.now().millisecondsSinceEpoch}';
     final mockRefresh = 'jwt_refresh_${DateTime.now().millisecondsSinceEpoch}';
     await _write(_accessTokenKey, mockToken);
     await _write(_refreshTokenKey, mockRefresh);
     await _write(_usernameKey, trimmedUser);
     await _write(_userEmailKey, trimmedEmail);
+    await _write('reg_pwd_$trimmedUser', trimmedPass);
+    await _write('reg_email_map_$trimmedEmail', trimmedUser);
 
-    return {'success': true, 'detail': 'Account initialized securely on-device.'};
+    return {'success': true, 'detail': 'Account created and registered successfully.'};
   }
 
   /// Secure login issuing dual JWT access and refresh tokens.
+  /// Requires that the user account was registered before.
   Future<bool> login(String usernameOrEmail, String password) async {
-    final trimmedUser = usernameOrEmail.trim();
+    final trimmedInput = usernameOrEmail.trim();
     final trimmedPass = password.trim();
-    if (trimmedUser.isEmpty || trimmedPass.isEmpty) return false;
+    if (trimmedInput.isEmpty || trimmedPass.isEmpty) return false;
 
     try {
       final resp = await _dio.post(
         '/api/v2/auth/login/',
         data: {
-          'username': trimmedUser,
+          'username': trimmedInput,
           'password': trimmedPass,
         },
         options: Options(
@@ -185,7 +198,7 @@ class AuthService {
       if (resp.statusCode == 200 && resp.data['access'] != null) {
         final access = resp.data['access'] as String;
         final refresh = resp.data['refresh'] as String;
-        final username = (resp.data['username'] as String?) ?? trimmedUser;
+        final username = (resp.data['username'] as String?) ?? trimmedInput;
         final email = (resp.data['email'] as String?) ?? '';
 
         await _write(_accessTokenKey, access);
@@ -194,24 +207,38 @@ class AuthService {
         if (email.isNotEmpty) await _write(_userEmailKey, email);
 
         return true;
+      } else {
+        // Explicit rejection from server
+        return false;
       }
-    } catch (_) {}
+    } catch (e) {
+      // If server explicitly returned 400/401/403, credentials are invalid
+      if (e is DioException && e.response?.statusCode != null && e.response!.statusCode! >= 400 && e.response!.statusCode! < 500) {
+        return false;
+      }
+    }
 
-    // Offline on-device fallback (when server is offline)
-    final storedUser = await _read(_usernameKey);
-    if (storedUser != null && (storedUser == trimmedUser || trimmedUser.contains('@'))) {
-      final mockToken = 'jwt_offline_${DateTime.now().millisecondsSinceEpoch}';
+    // Offline on-device validation: STRICTLY verify account was registered before
+    String targetUsername = trimmedInput;
+    if (trimmedInput.contains('@')) {
+      final mappedUser = await _read('reg_email_map_${trimmedInput.toLowerCase()}');
+      if (mappedUser != null) {
+        targetUsername = mappedUser;
+      }
+    }
+
+    final registeredPassword = await _read('reg_pwd_$targetUsername');
+    if (registeredPassword != null && registeredPassword == trimmedPass) {
+      final mockToken = 'jwt_access_${targetUsername}_${DateTime.now().millisecondsSinceEpoch}';
+      final mockRefresh = 'jwt_refresh_${targetUsername}_${DateTime.now().millisecondsSinceEpoch}';
       await _write(_accessTokenKey, mockToken);
+      await _write(_refreshTokenKey, mockRefresh);
+      await _write(_usernameKey, targetUsername);
       return true;
     }
 
-    // Initial first-time offline pairing bootstrap
-    final mockToken = 'jwt_access_${trimmedUser}_${DateTime.now().millisecondsSinceEpoch}';
-    final mockRefresh = 'jwt_refresh_${trimmedUser}_${DateTime.now().millisecondsSinceEpoch}';
-    await _write(_accessTokenKey, mockToken);
-    await _write(_refreshTokenKey, mockRefresh);
-    await _write(_usernameKey, trimmedUser);
-    return true;
+    // Unregistered accounts or wrong password are NOT permitted
+    return false;
   }
 
   /// Verifies email token
