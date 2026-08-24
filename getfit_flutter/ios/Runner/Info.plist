@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Kinetic uses your HealthKit heart rate, HRV, sleep, and step data to calibrate your progressive overload and bio-recovery.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Kinetic records calibrated workout sessions to Apple Health.</string>
 </dict>
 </plist>

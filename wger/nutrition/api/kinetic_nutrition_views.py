@@ -140,6 +140,121 @@ class NutritionLookupAPIView(APIView):
         return Response(calc, status=status.HTTP_200_OK)
 
 
+class BarcodeLookupAPIView(APIView):
+    """
+    Looks up a food product by its barcode (EAN-13, EAN-8, UPC-A).
+    Flow:
+    1. Check local KineticIngredient database (matching barcode).
+    2. Check Ingredient model (matching code).
+    3. Query Open Food Facts external API if not in local database.
+    4. Cache result server-side in KineticIngredient for instant subsequent lookups.
+    5. Returns exact Module 11 per-100g schema.
+    """
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Barcode Food Lookup (Open Food Facts)",
+        description="Looks up food by barcode with server-side caching and Open Food Facts fallback.",
+        parameters=[
+            OpenApiParameter("code", type=str, description="Product barcode (e.g. 737628064502 or 3017620422003)"),
+        ],
+        tags=["Nutrition & Food Logging"]
+    )
+    def get(self, request):
+        code = request.query_params.get('code', '').strip()
+        return self._lookup_barcode(code)
+
+    def post(self, request):
+        code = str(request.data.get('code', request.data.get('barcode', ''))).strip()
+        return self._lookup_barcode(code)
+
+    def _lookup_barcode(self, code: str):
+        if not code:
+            return Response(
+                {"detail": "Barcode parameter 'code' is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        ensure_starter_foods_seeded()
+
+        # 1. Tier 1: Check KineticIngredient by barcode
+        k_ing = KineticIngredient.objects.filter(barcode=code, verified=True).first()
+        if k_ing:
+            return Response(self._serialize_kinetic_ingredient(k_ing), status=status.HTTP_200_OK)
+
+        # 2. Tier 2: Check Ingredient by code
+        from wger.nutrition.models import Ingredient
+        ing = Ingredient.objects.filter(code=code).first()
+        if ing:
+            # Promote/cache to KineticIngredient
+            k_ing = KineticIngredient.objects.create(
+                name=ing.name,
+                category=ing.category.name if ing.category else 'General',
+                brand=ing.brand or '',
+                barcode=code,
+                calories_kcal=float(ing.energy),
+                protein_g=float(ing.protein),
+                carbs_g=float(ing.carbohydrates),
+                fat_g=float(ing.fat),
+                fiber_g=float(ing.fiber or 0.0),
+                sugar_g=float(ing.carbohydrates_sugar or 0.0),
+                sodium_mg=float(ing.sodium or 0.0),
+                source='open_food_facts',
+                verified=True,
+            )
+            return Response(self._serialize_kinetic_ingredient(k_ing), status=status.HTTP_200_OK)
+
+        # 3. Tier 3: Fetch from Open Food Facts API
+        try:
+            fetched_ing = Ingredient.fetch_ingredient_from_off(code)
+            if fetched_ing:
+                k_ing = KineticIngredient.objects.create(
+                    name=fetched_ing.name,
+                    category=fetched_ing.category.name if fetched_ing.category else 'Packaged Food',
+                    brand=fetched_ing.brand or '',
+                    barcode=code,
+                    calories_kcal=float(fetched_ing.energy),
+                    protein_g=float(fetched_ing.protein),
+                    carbs_g=float(fetched_ing.carbohydrates),
+                    fat_g=float(fetched_ing.fat),
+                    fiber_g=float(fetched_ing.fiber or 0.0),
+                    sugar_g=float(fetched_ing.carbohydrates_sugar or 0.0),
+                    sodium_mg=float(fetched_ing.sodium or 0.0),
+                    source='open_food_facts',
+                    verified=True,
+                )
+                return Response(self._serialize_kinetic_ingredient(k_ing), status=status.HTTP_200_OK)
+        except Exception:
+            pass
+
+        return Response(
+            {
+                "detail": f"Product not found for barcode '{code}'.",
+                "barcode": code,
+                "not_found": True,
+            },
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    def _serialize_kinetic_ingredient(self, ing: KineticIngredient) -> dict:
+        return {
+            "id": ing.id,
+            "name": ing.name,
+            "brand": ing.brand or "",
+            "barcode": ing.barcode or "",
+            "category": ing.category,
+            "calories_kcal": round(ing.calories_kcal),
+            "protein_g": round(ing.protein_g, 1),
+            "carbs_g": round(ing.carbs_g, 1),
+            "fat_g": round(ing.fat_g, 1),
+            "fiber_g": round(ing.fiber_g, 1),
+            "sugar_g": round(ing.sugar_g, 1),
+            "sodium_mg": round(ing.sodium_mg),
+            "unit": "100g",
+            "source": ing.source,
+        }
+
+
 class NutritionDiaryListCreateAPIView(APIView):
     """
     Athlete meal logging & day-at-a-glance diary breakdown with live target progress.

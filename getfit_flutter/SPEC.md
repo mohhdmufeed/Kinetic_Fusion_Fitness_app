@@ -115,3 +115,15 @@ Local Storage
 Do not place domain calculations inside UI components.
 
 Do not let UI state become the source of truth.
+
+---
+
+# 3. Nutrition & Food Diary Architecture (Module 11 Reconciled)
+
+## Barcode Scanning as an Entry Method
+* Barcode scanning (Open Food Facts integration) is strictly an **entry method** into the existing food diary (`KineticDiaryEntry` / `NutritionDiary`).
+* No secondary or parallel food-diary or macro-calculation system is permitted.
+* All foods, whether logged via text search, curated seed library, or camera barcode scan, share the identical canonical per-100g schema (`energy`, `protein`, `carbs`, `fat`, `fiber`, `sugar`, `sodium`).
+* All macro calculations use pure weight-based evaluation:
+  $$\text{actual\_value} = \left(\frac{\text{stored\_value\_per\_100g}}{100}\right) \times \text{entered\_grams}$$
+* Multi-tier caching guarantees full offline capability: previously scanned items resolve from local Drift cache with 0 network calls; uncached offline scans surface explicit guidance without blocking manual logging.

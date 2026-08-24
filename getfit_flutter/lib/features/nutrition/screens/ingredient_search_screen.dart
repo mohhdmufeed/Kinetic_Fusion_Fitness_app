@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/database/app_database.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../widgets/barcode_scanner_sheet.dart';
 
 class IngredientSearchScreen extends ConsumerStatefulWidget {
   const IngredientSearchScreen({super.key});
@@ -47,6 +48,13 @@ class _IngredientSearchScreenState
     );
   }
 
+  Future<void> _scanBarcode() async {
+    final result = await BarcodeScannerSheet.show(context);
+    if (result != null && result['id'] != null && result['amount'] != null && mounted) {
+      context.pop({'id': result['id'], 'amount': result['amount']});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +72,13 @@ class _IngredientSearchScreenState
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+            tooltip: 'Scan Barcode',
+            onPressed: _scanBarcode,
+          ),
+        ],
       ),
       body: _results.isEmpty
           ? Center(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/database/app_database.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../widgets/barcode_scanner_sheet.dart';
 
 class FoodDiaryScreen extends ConsumerStatefulWidget {
   const FoodDiaryScreen({super.key});
@@ -65,6 +66,13 @@ class _FoodDiaryScreenState extends ConsumerState<FoodDiaryScreen> {
     await _loadDiary();
   }
 
+  Future<void> _scanBarcode() async {
+    final result = await BarcodeScannerSheet.show(context);
+    if (result != null && result['id'] != null && result['amount'] != null) {
+      await _addEntry(result['id'] as int, (result['amount'] as num).toDouble());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateLabel = DateFormat('EEEE, MMM d').format(_selectedDate);
@@ -75,6 +83,13 @@ class _FoodDiaryScreenState extends ConsumerState<FoodDiaryScreen> {
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.go('/nutrition'),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+            tooltip: 'Scan Barcode',
+            onPressed: _scanBarcode,
+          ),
+        ],
       ),
       body: Column(
         children: [

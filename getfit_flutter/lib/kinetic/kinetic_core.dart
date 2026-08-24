@@ -40,3 +40,7 @@ export 'services/feedback_service.dart';
 export 'services/simulation_service.dart';
 export 'contracts/app_view_models.dart';
 export 'services/kinetic_app_facade.dart';
+export 'services/wearables/health_kit_service.dart';
+export 'services/wearables/health_connect_service.dart';
+export 'services/wearables/oura_service.dart';
+export 'services/wearables/wearable_sync_service.dart';

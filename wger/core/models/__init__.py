@@ -60,3 +60,4 @@ from .trainer_booking_achievements import (
     WidgetType,
     AchievementRuleType,
 )
+from .wearable import WearableIntegration

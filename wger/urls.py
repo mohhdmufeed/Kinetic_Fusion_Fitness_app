@@ -52,6 +52,7 @@ from wger.core.api import gym_admin_views
 from wger.core.api import gym_owner_views
 from wger.core.api import trainer_booking_views
 from wger.core.api import achievements_favorites_widgets_views
+from wger.core.api import wearable_views
 from wger.social.api import views as social_views
 from wger.nutrition.api import kinetic_nutrition_views
 from wger.exercises.api import views as exercises_api_views
@@ -366,6 +367,11 @@ urlpatterns += [
     path('api/v2/sync/push/', sync_engine_views.SyncPushAPIView.as_view(), name='sync-push'),
     path('api/v2/sync/pull/', sync_engine_views.SyncPullAPIView.as_view(), name='sync-pull'),
 
+    # Kinetic Precision Wearable Integrations (/api/v2/wearables/**)
+    path('api/v2/wearables/status/', wearable_views.WearableStatusView.as_view(), name='wearables-status'),
+    path('api/v2/wearables/oura/auth/', wearable_views.OuraAuthView.as_view(), name='wearables-oura-auth'),
+    path('api/v2/wearables/oura/sync/', wearable_views.OuraSyncView.as_view(), name='wearables-oura-sync'),
+
     # Kinetic Precision High-Performance Applied ML Dashboard (/api/v2/dashboard/**)
     path('api/v2/dashboard/today/', dashboard_views.DashboardTodayView.as_view(), name='dashboard-today'),
     path('api/v2/dashboard/body/', dashboard_views.DashboardBodyView.as_view(), name='dashboard-body'),
@@ -389,6 +395,7 @@ urlpatterns += [
     # Kinetic Precision Closed Nutrition System (/api/v2/nutrition/** & /api/v2/admin/nutrition/**)
     path('api/v2/nutrition/search/', kinetic_nutrition_views.NutritionSearchAPIView.as_view(), name='kinetic-nutrition-search'),
     path('api/v2/nutrition/lookup/', kinetic_nutrition_views.NutritionLookupAPIView.as_view(), name='kinetic-nutrition-lookup'),
+    path('api/v2/nutrition/barcode/', kinetic_nutrition_views.BarcodeLookupAPIView.as_view(), name='kinetic-nutrition-barcode'),
     path('api/v2/nutrition/log/', kinetic_nutrition_views.NutritionDiaryListCreateAPIView.as_view(), name='kinetic-nutrition-log'),
     path('api/v2/nutrition/diary/', kinetic_nutrition_views.NutritionDiaryListCreateAPIView.as_view(), name='kinetic-nutrition-diary-list'),
     path('api/v2/nutrition/diary/<int:entry_id>/', kinetic_nutrition_views.NutritionDiaryDetailAPIView.as_view(), name='kinetic-nutrition-diary-detail'),
