@@ -154,21 +154,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: const Color(0xFF141824),
+        color: const Color(0xFF131722),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isFocused ? const Color(0xFF38BDF8) : const Color(0xFF232A3B),
-          width: isFocused ? 1.5 : 1.0,
+          color: isFocused ? const Color(0xFF38BDF8) : const Color(0xFF334155),
+          width: isFocused ? 2.0 : 1.5,
         ),
         boxShadow: isFocused
             ? [
                 BoxShadow(
-                  color: const Color(0xFF38BDF8).withOpacity(0.18),
-                  blurRadius: 10,
+                  color: const Color(0xFF38BDF8).withOpacity(0.25),
+                  blurRadius: 12,
                   spreadRadius: 1,
                 )
               ]
-            : [],
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: TextFormField(
         controller: controller,
@@ -190,26 +196,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             padding: const EdgeInsets.only(left: 14, right: 12),
             child: Icon(
               prefixIcon,
-              color: isFocused ? const Color(0xFF38BDF8) : Colors.white54,
-              size: 20,
+              color: isFocused ? const Color(0xFF38BDF8) : const Color(0xFF94A3B8),
+              size: 22,
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 20),
+          prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 22),
           suffixIcon: isPassword
               ? IconButton(
                   splashRadius: 20,
                   icon: Icon(
                     obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                    color: isFocused ? const Color(0xFF38BDF8) : Colors.white38,
-                    size: 20,
+                    color: isFocused ? const Color(0xFF38BDF8) : const Color(0xFF64748B),
+                    size: 22,
                   ),
                   onPressed: onToggleObscure,
                 )
               : null,
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.38),
-            fontSize: 14.5,
+          hintStyle: const TextStyle(
+            color: Color(0xFF64748B),
+            fontSize: 15,
             fontWeight: FontWeight.w400,
           ),
           border: InputBorder.none,
