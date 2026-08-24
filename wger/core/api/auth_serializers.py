@@ -108,6 +108,10 @@ class LoginSerializer(serializers.Serializer):
             pass
 
         refresh = RefreshToken.for_user(user)
+        refresh['aud'] = 'kinetic_precision'
+        refresh['scope'] = 'mobile_api'
+        refresh.access_token['aud'] = 'kinetic_precision'
+        refresh.access_token['scope'] = 'mobile_api'
         return {
             'access': str(refresh.access_token),
             'refresh': str(refresh),
