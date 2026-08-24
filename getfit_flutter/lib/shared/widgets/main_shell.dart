@@ -7,11 +7,11 @@ class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.child});
 
   static const _tabs = [
-    (icon: Icons.home_rounded, label: 'Home', path: '/dashboard'),
-    (icon: Icons.category_rounded, label: 'Explore', path: '/categories'),
-    (icon: Icons.fitness_center_rounded, label: 'Workouts', path: '/workouts'),
-    (icon: Icons.restaurant_rounded, label: 'Nutrition', path: '/nutrition'),
-    (icon: Icons.bar_chart_rounded, label: 'Reports', path: '/charts'),
+    (icon: Icons.bolt_rounded, label: 'TODAY', path: '/dashboard'),
+    (icon: Icons.fitness_center_rounded, label: 'TRAIN', path: '/explore'),
+    (icon: Icons.monitor_heart_rounded, label: 'BODY', path: '/body'),
+    (icon: Icons.insights_rounded, label: 'ACTIVITY', path: '/activity'),
+    (icon: Icons.person_rounded, label: 'YOU', path: '/profile'),
   ];
 
   int _currentIndex(BuildContext context) {
@@ -19,23 +19,56 @@ class MainShell extends StatelessWidget {
     for (int i = 0; i < _tabs.length; i++) {
       if (location.startsWith(_tabs[i].path)) return i;
     }
+    if (location.startsWith('/workouts') || location.startsWith('/exercises')) return 1;
+    if (location.startsWith('/explore')) return 1;
+    if (location.startsWith('/body') || location.startsWith('/charts') || location.startsWith('/measurements') || location.startsWith('/categories')) return 2;
+    if (location.startsWith('/activity') || location.startsWith('/run-tracker')) return 3;
+    if (location.startsWith('/profile') || location.startsWith('/account') || location.startsWith('/settings') || location.startsWith('/you')) return 4;
     return 0;
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedIdx = _currentIndex(context);
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex(context),
-        onDestinationSelected: (i) => context.go(_tabs[i].path),
-        destinations: _tabs
-            .map((t) => NavigationDestination(
-                  icon: Icon(t.icon),
-                  label: t.label,
-                ))
-            .toList(),
-        height: 70,
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF0D0E0F),
+          border: Border(top: BorderSide(color: Color(0xFF222326), width: 1)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(_tabs.length, (i) {
+            final tab = _tabs[i];
+            final isSelected = i == selectedIdx;
+            final color = isSelected ? AppColors.primary : Colors.white38;
+            return InkWell(
+              onTap: () => context.go(tab.path),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(tab.icon, size: 22, color: color),
+                    const SizedBox(height: 4),
+                    Text(
+                      tab.label,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        letterSpacing: 0.8,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }

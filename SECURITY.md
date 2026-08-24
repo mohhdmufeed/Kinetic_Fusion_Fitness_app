@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-While we do have versions and releases, wger is developed and deployed like a rolling release. Currently we don't have the resources to support older versions.
+While we do have versions and releases,  is developed and deployed like a rolling release. Currently we don't have the resources to support older versions.
 
 
 ## Reporting a Vulnerability

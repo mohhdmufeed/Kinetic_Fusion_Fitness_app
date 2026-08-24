@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.getfit.getfit"
+    namespace = "com.kineticprecision.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.getfit.getfit"
+        applicationId = "com.kineticprecision.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

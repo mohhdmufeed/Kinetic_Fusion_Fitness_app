@@ -24,7 +24,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # WGER application
 WGER_SETTINGS['ALLOW_UPLOAD_VIDEOS'] = True
-WGER_SETTINGS['ALLOW_GUEST_USERS'] = True
+WGER_SETTINGS['ALLOW_GUEST_USERS'] = False
 WGER_SETTINGS['ALLOW_REGISTRATION'] = True
 WGER_SETTINGS['DOWNLOAD_INGREDIENTS_FROM'] = 'WGER'  # or 'None' to disable
 WGER_SETTINGS['EMAIL_FROM'] = 'wger Workout Manager <wger@example.com>'

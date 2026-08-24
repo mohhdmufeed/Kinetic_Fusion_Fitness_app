@@ -1,43 +1,45 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary brand — wger green & classic Bootstrap accents
-  static const primary = Color(0xFF28A745); // wger Green (btn-success)
-  static const primaryDark = Color(0xFF1E7E34);
-  static const primaryLight = Color(0xFF48C774);
+  // Primary brand — Muted Olive Sage Accent from reference
+  static const primary = Color(0xFF859463);
+  static const primaryDark = Color(0xFF6B7B43);
+  static const primaryLight = Color(0xFFA5B874);
 
-  // Secondary brand — Bootstrap blue
-  static const accent = Color(0xFF0D6EFD);
-  static const accentDark = Color(0xFF0A58CA);
+  // Secondary brand — Olive Highlights
+  static const accent = Color(0xFF859463);
+  static const accentDark = Color(0xFF6B7B43);
+  static const secondary = Color(0xFF859463);
 
-  // Backgrounds & Surfaces (wger clean light theme)
-  static const bgLight = Color(0xFFF8F9FA); // wger body bg
-  static const surfaceLight = Color(0xFFFFFFFF); // Card bg
-  static const cardBorderLight = Color(0xFFDEE2E6); // Card border
+  // Backgrounds & Surfaces (Matte OLED Dark & Slate Graphite Cards)
+  static const bgLight = Color(0xFFF8F9FA);
+  static const surfaceLight = Color(0xFFFFFFFF);
+  static const cardBorderLight = Color(0xFFDEE2E6);
 
-  // Dark mode
-  static const bgDark = Color(0xFF121212);
-  static const surfaceDark = Color(0xFF1E1E1E);
-  static const cardDark = Color(0xFF242424);
-  static const cardBorderDark = Color(0xFF333333);
+  // Deep Matte Graphite Canvas from screenshots
+  static const bgDark = Color(0xFF0D0E0F);
+  static const surfaceDark = Color(0xFF141517);
+  static const cardDark = Color(0xFF161719);
+  static const cardBorderDark = Color(0xFF222326);
+  static const outlineVariant = Color(0xFF2B2C30);
 
   // Header / Navbar
-  static const navBarDark = Color(0xFF212529); // wger top navigation bar
+  static const navBarDark = Color(0xFF0D0E0F);
 
   // Status
-  static const success = Color(0xFF28A745);
-  static const warning = Color(0xFFFFC107);
-  static const error = Color(0xFFDC3545);
-  static const info = Color(0xFF0DCAF0);
+  static const success = Color(0xFF2AF598);
+  static const warning = Color(0xFFFFDE54);
+  static const error = Color(0xFFFF5252);
+  static const info = Color(0xFF00E38A);
 
-  // Muscle group tag colors (wger standard)
-  static const chest = Color(0xFFDC3545);
-  static const back = Color(0xFF0D6EFD);
-  static const legs = Color(0xFF28A745);
-  static const shoulders = Color(0xFF6F42C1);
-  static const arms = Color(0xFFFD7E14);
-  static const core = Color(0xFFFFC107);
-  static const cardio = Color(0xFF20C997);
+  // Muscle group tag colors
+  static const chest = Color(0xFFFF5252);
+  static const back = Color(0xFF38BDF8);
+  static const legs = Color(0xFF2AF598);
+  static const shoulders = Color(0xFFA855F7);
+  static const arms = Color(0xFFFB923C);
+  static const core = Color(0xFFFFDE54);
+  static const cardio = Color(0xFF2DD4BF);
 }
 
 class AppTheme {
@@ -222,12 +224,12 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: const Color(0xFF0D0E0F),
           minimumSize: const Size.fromHeight(48),
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             fontSize: 15,
           ),
         ),

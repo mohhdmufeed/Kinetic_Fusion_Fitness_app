@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'auth/auth_service.dart';
@@ -25,33 +26,97 @@ import '../features/categories/screens/trends_dashboard_screen.dart';
 import '../features/live_session/screens/live_workout_screen.dart';
 import '../features/wishlist/screens/wishlist_screen.dart';
 import '../features/account/screens/account_screen.dart';
+import '../features/account/screens/gym_admin_screen.dart';
 import '../features/feedback/screens/feedback_screen.dart';
+import '../features/body/screens/body_screen.dart';
+import '../features/you/screens/you_screen.dart';
+import '../features/explore/screens/explore_screen.dart';
+import '../features/activity/screens/activity_screen.dart';
+import '../features/community/screens/community_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
+import '../features/achievements/screens/achievements_screen.dart';
+import '../features/explore/screens/trainer_discovery_screen.dart';
 import '../shared/widgets/main_shell.dart';
 
+class AuthRouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+  bool _initialized = false;
+  bool _isLoggedIn = false;
+
+  AuthRouterNotifier(this._ref) {
+    _ref.listen<AsyncValue<bool>>(isLoggedInProvider, (previous, next) {
+      if (next.hasValue) {
+        _isLoggedIn = next.value!;
+        _initialized = true;
+        notifyListeners();
+      }
+    });
+    _checkInitialAuth();
+  }
+
+  bool get isInitialized => _initialized;
+  bool get isLoggedIn => _isLoggedIn;
+
+  Future<void> _checkInitialAuth() async {
+    final authService = _ref.read(authServiceProvider);
+    _isLoggedIn = await authService.isLoggedIn();
+    _initialized = true;
+    notifyListeners();
+  }
+}
+
+final authRouterNotifierProvider = ChangeNotifierProvider<AuthRouterNotifier>((ref) {
+  return AuthRouterNotifier(ref);
+});
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(isLoggedInProvider);
+  final authNotifier = ref.watch(authRouterNotifierProvider);
 
   return GoRouter(
-    initialLocation: '/login',
+    refreshListenable: authNotifier,
+    initialLocation: '/splash',
     redirect: (context, state) {
-      final loggedIn = authState.valueOrNull ?? false;
-      final onAuth =
-          state.matchedLocation == '/login' ||
+      if (!authNotifier.isInitialized) {
+        return '/splash';
+      }
+
+      final loggedIn = authNotifier.isLoggedIn;
+      final isSplash = state.matchedLocation == '/splash';
+      final isAuthScreen = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/onboarding';
-      if (!loggedIn && !onAuth) return '/login';
-      if (loggedIn && (state.matchedLocation == '/login' || state.matchedLocation == '/register')) {
+
+      if (!loggedIn && !isAuthScreen) {
+        return '/login';
+      }
+
+      if (loggedIn && (isAuthScreen || isSplash)) {
         return '/dashboard';
       }
+
+      if (!loggedIn && isSplash) {
+        return '/login';
+      }
+
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (_, __) => const Scaffold(
+          backgroundColor: Color(0xFF0D1117),
+          body: Center(
+            child: CircularProgressIndicator(color: Color(0xFF38BDF8)),
+          ),
+        ),
+      ),
       // Auth routes
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/run-tracker', builder: (_, __) => const RunTrackerScreen()),
       GoRoute(path: '/account', builder: (_, __) => const AccountScreen()),
+      GoRoute(path: '/admin', builder: (_, __) => const GymAdminScreen()),
       GoRoute(path: '/feedback', builder: (_, __) => const FeedbackScreen()),
       GoRoute(
         path: '/live-session/:type',
@@ -75,6 +140,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, child) => MainShell(child: child),
         routes: [
           GoRoute(path: '/dashboard', builder: (_, __) => const DashboardScreen()),
+          GoRoute(path: '/explore', builder: (_, __) => const ExploreScreen()),
+          GoRoute(path: '/activity', builder: (_, __) => const ActivityScreen()),
+          GoRoute(path: '/community', builder: (_, __) => const CommunityScreen()),
+          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+          GoRoute(path: '/achievements', builder: (_, __) => const AchievementsScreen()),
+          GoRoute(path: '/trainers', builder: (_, __) => const TrainerDiscoveryScreen()),
+          GoRoute(path: '/body', builder: (_, __) => const BodyScreen()),
+          GoRoute(path: '/you', builder: (_, __) => const YouScreen()),
           GoRoute(path: '/categories', builder: (_, __) => const CategoriesHubScreen()),
           GoRoute(
             path: '/workouts',

@@ -21,3 +21,42 @@ from .license import License
 from .profile import UserProfile
 from .rep_unit import RepetitionUnit
 from .weight_unit import WeightUnit
+from .admin import AdminProfile, AdminAuditLog
+from .sync import SyncLog
+from .ml import (
+    DailyMetrics,
+    MLRecoveryScore,
+    MLTrainingLoad,
+    MLStrengthTrajectory,
+    MLWeightTrajectory,
+    MLDailyRecommendation,
+)
+from .feedback import FeedbackReport
+from .activity import ActivityLog
+from .gym_admin import (
+    ProgramSchedule,
+    ProgramDay,
+    ProgramExercise,
+    ClientMembership,
+    BodyStatEntry,
+)
+from .gym_owner import GymOwnerProfile
+from .trainer_booking_achievements import (
+    # Module 14 — Trainer Directory & Booking
+    TrainerProfile,
+    GroupClass,
+    PrivateSession,
+    Booking,
+    BookingStatus,
+    SessionType,
+    SessionStatus,
+    ClassStatus,
+    # Module 15 — Achievements, Favorites & Home Widgets
+    Achievement,
+    UserAchievement,
+    Favorite,
+    FavoriteEntityType,
+    HomeWidget,
+    WidgetType,
+    AchievementRuleType,
+)

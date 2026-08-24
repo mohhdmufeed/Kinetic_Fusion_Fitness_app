@@ -12,5 +12,5 @@ class AppConstants {
 
   // Sync settings
   static const int syncIntervalMinutes = 30;
-  static const String syncTaskName = 'getfit_background_sync';
+  static const String syncTaskName = 'kinetic_precision_background_sync';
 }

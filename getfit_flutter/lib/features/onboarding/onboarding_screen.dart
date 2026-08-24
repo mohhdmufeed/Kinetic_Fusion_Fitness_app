@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:drift/drift.dart' as drift;
+import '../../core/auth/auth_service.dart';
 import '../../core/database/app_database.dart';
 import '../../core/utils/move_goal_calculator.dart';
+import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/personal_info_form.dart';
 import '../../shared/widgets/activity_level_picker.dart';
 
@@ -57,6 +59,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         );
       }
+
+      final username = await ref.read(authServiceProvider).getUsername();
+      if (username != null) {
+        await ref.read(authServiceProvider).setOnboardingCompleted(username);
+      }
     } catch (_) {}
 
     if (mounted) {
@@ -72,21 +79,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
-  void _skip() {
-    context.go('/dashboard');
+  Future<void> _skip() async {
+    final username = await ref.read(authServiceProvider).getUsername();
+    if (username != null) {
+      await ref.read(authServiceProvider).setOnboardingCompleted(username);
+    }
+    if (mounted) {
+      context.go('/dashboard');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const navyColor = Color(0xFF26496C);
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.bgDark,
       appBar: AppBar(
-        title: Text(_currentStep == 0 ? 'Step 1 of 2: Personal Info' : 'Step 2 of 2: Daily Move Goal'),
-        backgroundColor: navyColor,
+        title: Text(
+          _currentStep == 0 ? 'Step 1 of 2: Personal Info' : 'Step 2 of 2: Daily Move Goal',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        ),
+        backgroundColor: AppColors.surfaceDark,
         foregroundColor: Colors.white,
         elevation: 0,
         leading: _currentStep > 0
@@ -108,16 +122,41 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: ConstrainedBox(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/textured_dumbbells.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF0D0E0F).withOpacity(0.82),
+                    const Color(0xFF0D0E0F).withOpacity(0.97),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: Card(
+                color: AppColors.cardDark,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: AppColors.cardBorderDark),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -131,12 +170,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: navyColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.primary.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
                             ),
                             child: Icon(
                               _currentStep == 0 ? Icons.person_pin : Icons.local_fire_department_rounded,
-                              color: navyColor,
+                              color: AppColors.primary,
                               size: 28,
                             ),
                           ),
@@ -149,8 +189,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                   _currentStep == 0
                                       ? 'Tell us about yourself'
                                       : 'How active are you?',
-                                  style: theme.textTheme.titleLarge?.copyWith(
+                                  style: const TextStyle(
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -158,8 +200,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                   _currentStep == 0
                                       ? 'Help us customize your body metrics'
                                       : 'Set your daily active calorie burn target',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey.shade600,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.6),
                                   ),
                                 ),
                               ],
@@ -167,27 +210,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ),
                         ],
                       ),
-                      const Divider(height: 28),
+                      const Divider(height: 28, color: AppColors.cardBorderDark),
 
                       // Step 1: Personal Info Form
                       if (_currentStep == 0) ...[
                         PersonalInfoForm(
                           initialData: _personalData,
                           formKey: _personalFormKey,
-                          onChanged: (updated) {
+                          onChanged: (updated) async {
                             _personalData = updated;
+                            final db = ref.read(databaseProvider);
+                            await db.saveUserProfile(
+                              UserProfileCompanion(
+                                birthDate: drift.Value(updated.birthDate),
+                                sex: drift.Value(updated.sex),
+                                heightCm: drift.Value(updated.heightCm),
+                                weightKg: drift.Value(updated.weightKg),
+                                weightUnit: drift.Value(updated.weightUnit),
+                              ),
+                            );
                           },
                         ),
                         const SizedBox(height: 28),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 50,
                           child: ElevatedButton(
                             onPressed: _nextStep,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: navyColor,
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.black,
+                              elevation: 2,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: const Row(
@@ -198,11 +253,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 SizedBox(width: 8),
-                                Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                                Icon(Icons.arrow_forward, size: 18, color: Colors.black),
                               ],
                             ),
                           ),
@@ -215,20 +270,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           heightCm: _personalData.heightCm ?? 175,
                           birthDate: _personalData.birthDate,
                           sex: _personalData.sex,
-                          onChanged: (updated) {
+                          onChanged: (updated) async {
                             _activityData = updated;
+                            final db = ref.read(databaseProvider);
+                            await db.saveUserProfile(
+                              UserProfileCompanion(
+                                activityLevel: drift.Value(updated.activityLevel),
+                                profession: drift.Value(updated.profession),
+                                workHours: drift.Value(updated.workHours),
+                                workIntensity: drift.Value(updated.workIntensity),
+                                sportHours: drift.Value(updated.sportHours),
+                                sportIntensity: drift.Value(updated.sportIntensity),
+                                freetimeHours: drift.Value(updated.freetimeHours),
+                                freetimeIntensity: drift.Value(updated.freetimeIntensity),
+                                sleepHours: drift.Value(updated.sleepHours),
+                                dailyMoveGoalCalories: drift.Value(updated.calculatedMoveGoal),
+                              ),
+                            );
                           },
                         ),
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 50,
                           child: ElevatedButton(
                             onPressed: _saving ? null : _saveAndFinish,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: navyColor,
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.black,
+                              elevation: 2,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: _saving
@@ -236,7 +308,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     width: 24,
                                     height: 24,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       strokeWidth: 2.5,
                                     ),
                                   )
@@ -245,21 +317,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: Colors.black,
                                     ),
                                   ),
                           ),
                         ),
                       ],
-
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       Center(
                         child: TextButton(
                           onPressed: _skip,
                           child: Text(
                             'Skip for now',
                             style: TextStyle(
-                              color: isDark ? Colors.white60 : Colors.grey.shade600,
+                              color: Colors.white.withOpacity(0.5),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -273,6 +344,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
       ),
-    );
-  }
+    ],
+  ),
+);
+}
 }

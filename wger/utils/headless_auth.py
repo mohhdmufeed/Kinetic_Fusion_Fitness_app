@@ -39,7 +39,7 @@ class HeadlessJWTAuthentication(JWTTokenAuthentication):
     def authenticate(self, request):
         try:
             return super().authenticate(request)
-        except AuthenticationFailed:
+        except (AuthenticationFailed, Exception):
             return None
 
     def authenticate_credentials(self, key):

@@ -21,40 +21,56 @@ from rest_framework import permissions
 
 class WgerPermission(permissions.BasePermission):
     """
-    Checks that the user has access to the object
-
-    If the object has a 'owner_object' method, only allow access for the owner
-    user. For the other objects (system-wide objects like exercises, etc.) allow
-    only safe methods (GET, HEAD or OPTIONS)
+    Checks that the requesting user strictly owns the target object or has safe global access.
     """
 
     def has_permission(self, request, view):
-        """
-        Access to public resources is allowed for all, for others, the user
-        has to be authenticated
-
-        The is_public flag is not present in all views, e.g. the special APIRoot
-        view. If it is not present, treat is as a public endpoint
-        """
         if hasattr(view, 'is_private') and view.is_private:
             return request.user and request.user.is_authenticated
-        return True
+        return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        """
-        Perform the check
-        """
-        owner_object = obj.get_owner_object() if hasattr(obj, 'get_owner_object') else False
+        if not request.user or not request.user.is_authenticated:
+            return False
 
-        # Owner
-        if owner_object and owner_object.user == request.user:
+        # Direct user ownership
+        if hasattr(obj, 'user') and obj.user == request.user:
             return True
 
-        # 'global' objects only for GET, HEAD or OPTIONS
-        if not owner_object and request.method in permissions.SAFE_METHODS:
+        # Owner object delegation
+        if hasattr(obj, 'get_owner_object'):
+            owner = obj.get_owner_object()
+            if owner:
+                if hasattr(owner, 'user') and owner.user == request.user:
+                    return True
+                if owner == request.user:
+                    return True
+
+        # Safe methods on global/shared objects only
+        is_global = not hasattr(obj, 'user') and not hasattr(obj, 'get_owner_object')
+        if is_global and request.method in permissions.SAFE_METHODS:
             return True
 
-        # Everything else is a no-no
+        return False
+
+
+class IsStrictOwner(permissions.BasePermission):
+    """
+    Strict object-level permission: allows access ONLY if the object belongs to the request.user.
+    """
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated)
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if hasattr(obj, 'user'):
+            return obj.user == request.user
+        if hasattr(obj, 'get_owner_object'):
+            owner = obj.get_owner_object()
+            if hasattr(owner, 'user'):
+                return owner.user == request.user
+            return owner == request.user
         return False
 
 

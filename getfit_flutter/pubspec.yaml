@@ -1,7 +1,7 @@
-name: getfit
-description: GetFit — Offline-first fitness tracker powered by wger
+name: kinetic_precision
+description: Kinetic Precision — Offline-first fitness intelligence engine
 publish_to: 'none'
-version: 1.0.0+1
+version: 2.2.0+4
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -50,6 +50,12 @@ dependencies:
 
   # Icons
   cupertino_icons: ^1.0.6
+
+  # App lock — biometric / face auth
+  local_auth: ^2.3.0
+
+  # Cryptography — SHA-256 for PIN hashing
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

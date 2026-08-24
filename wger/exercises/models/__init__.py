@@ -25,3 +25,8 @@ from .image import ExerciseImage
 from .muscle import Muscle
 from .translation import Translation
 from .video import ExerciseVideo
+from .publication import (
+    ExercisePublicationState,
+    UserExerciseFavorite,
+    ExerciseLibraryMetadata,
+)

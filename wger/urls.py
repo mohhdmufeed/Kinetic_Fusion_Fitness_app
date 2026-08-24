@@ -40,7 +40,23 @@ from rest_framework_simplejwt.views import (
 
 # wger
 from wger.core.api import views as core_api_views
+from wger.core.api import auth_views
+from wger.core.api import admin_views
+from wger.core.api import sync_views
+from wger.core.api import sync_engine_views
+from wger.core.api import dashboard_views
+from wger.core.api import feedback_views
+from wger.core.api import admin_feedback_views
+from wger.core.api import activity_views
+from wger.core.api import gym_admin_views
+from wger.core.api import gym_owner_views
+from wger.core.api import trainer_booking_views
+from wger.core.api import achievements_favorites_widgets_views
+from wger.social.api import views as social_views
+from wger.nutrition.api import kinetic_nutrition_views
 from wger.exercises.api import views as exercises_api_views
+from wger.exercises.api import exercise_library_views
+from wger.exercises.api import admin_exercise_views
 from wger.exercises.sitemap import ExercisesSitemap
 from wger.gallery.api import views as gallery_api_views
 from wger.manager.api import views as manager_api_views
@@ -326,6 +342,122 @@ urlpatterns += [
         core_api_views.VerifyEmailView.as_view(),
         name='userprofile-verify-email',
     ),
+    # Kinetic Precision Secure Auth Endpoints
+    path('api/v2/auth/signup/', auth_views.SignupView.as_view(), name='auth-signup'),
+    path('api/v2/auth/verify-email/', auth_views.VerifyEmailView.as_view(), name='auth-verify-email'),
+    path('api/v2/auth/login/', auth_views.LoginView.as_view(), name='auth-login'),
+    path('api/v2/auth/refresh/', TokenRefreshView.as_view(), name='auth-refresh'),
+    path('api/v2/auth/logout/', auth_views.LogoutView.as_view(), name='auth-logout'),
+    path('api/v2/auth/logout-all/', auth_views.LogoutAllView.as_view(), name='auth-logout-all'),
+    path('api/v2/auth/password-reset/', auth_views.PasswordResetRequestView.as_view(), name='auth-password-reset'),
+    path('api/v2/auth/password-reset-confirm/', auth_views.PasswordResetConfirmView.as_view(), name='auth-password-reset-confirm'),
+
+    # Kinetic Precision Hardened Admin Tier (/api/v2/admin/**)
+    path('api/v2/admin/auth/login/', admin_views.AdminLoginStep1View.as_view(), name='admin-login-step1'),
+    path('api/v2/admin/auth/verify-2fa/', admin_views.AdminVerify2FAView.as_view(), name='admin-verify-2fa'),
+    path('api/v2/admin/users/', admin_views.AdminUserListView.as_view(), name='admin-users-list'),
+    path('api/v2/admin/users/<int:user_id>/suspend/', admin_views.AdminUserSuspendView.as_view(), name='admin-user-suspend'),
+    path('api/v2/admin/users/<int:user_id>/soft-delete/', admin_views.AdminUserSoftDeleteView.as_view(), name='admin-user-soft-delete'),
+    path('api/v2/admin/analytics/overview/', admin_views.AdminAnalyticsOverviewView.as_view(), name='admin-analytics-overview'),
+    path('api/v2/admin/system/health/', admin_views.AdminSystemHealthView.as_view(), name='admin-system-health'),
+    path('api/v2/admin/audit-logs/', admin_views.AdminAuditLogListView.as_view(), name='admin-audit-logs'),
+
+    # Kinetic Precision Authoritative ChangeLog Sync Engine (/api/v2/sync/**)
+    path('api/v2/sync/push/', sync_engine_views.SyncPushAPIView.as_view(), name='sync-push'),
+    path('api/v2/sync/pull/', sync_engine_views.SyncPullAPIView.as_view(), name='sync-pull'),
+
+    # Kinetic Precision High-Performance Applied ML Dashboard (/api/v2/dashboard/**)
+    path('api/v2/dashboard/today/', dashboard_views.DashboardTodayView.as_view(), name='dashboard-today'),
+    path('api/v2/dashboard/body/', dashboard_views.DashboardBodyView.as_view(), name='dashboard-body'),
+    path('api/v2/dashboard/history/', dashboard_views.DashboardHistoryView.as_view(), name='dashboard-history'),
+
+    # Kinetic Precision Exercise Library (/api/v2/exercise-library/**)
+    path('api/v2/exercise-library/', exercise_library_views.ExerciseLibraryListView.as_view(), name='exercise-library-list'),
+    path('api/v2/exercise-library/<int:exercise_id>/favorite/', exercise_library_views.ExerciseFavoriteToggleView.as_view(), name='exercise-library-favorite'),
+    path('api/v2/exercise-library/<int:exercise_id>/history/', exercise_library_views.ExerciseHistoryView.as_view(), name='exercise-library-history'),
+    path('api/v2/exercise-library/suggest/', exercise_library_views.ExerciseSuggestionView.as_view(), name='exercise-library-suggest'),
+
+    # Kinetic Precision In-App Feedback & Support (/api/v2/feedback/**)
+    path('api/v2/feedback/', feedback_views.FeedbackSubmitView.as_view(), name='feedback-submit'),
+    path('api/v2/feedback/mine/', feedback_views.FeedbackMineListView.as_view(), name='feedback-mine'),
+
+    # Kinetic Precision Real GPS & Pedometer Telemetry (/api/v2/activity/**)
+    path('api/v2/activity/record/', activity_views.ActivityRecordView.as_view(), name='activity-record'),
+    path('api/v2/activity/history/', activity_views.ActivityHistoryView.as_view(), name='activity-history'),
+    path('api/v2/activity/location-history/', activity_views.ActivityLocationPurgeView.as_view(), name='activity-location-purge'),
+
+    # Kinetic Precision Closed Nutrition System (/api/v2/nutrition/** & /api/v2/admin/nutrition/**)
+    path('api/v2/nutrition/search/', kinetic_nutrition_views.NutritionSearchAPIView.as_view(), name='kinetic-nutrition-search'),
+    path('api/v2/nutrition/lookup/', kinetic_nutrition_views.NutritionLookupAPIView.as_view(), name='kinetic-nutrition-lookup'),
+    path('api/v2/nutrition/log/', kinetic_nutrition_views.NutritionDiaryListCreateAPIView.as_view(), name='kinetic-nutrition-log'),
+    path('api/v2/nutrition/diary/', kinetic_nutrition_views.NutritionDiaryListCreateAPIView.as_view(), name='kinetic-nutrition-diary-list'),
+    path('api/v2/nutrition/diary/<int:entry_id>/', kinetic_nutrition_views.NutritionDiaryDetailAPIView.as_view(), name='kinetic-nutrition-diary-detail'),
+    path('api/v2/admin/nutrition/ingredients/', kinetic_nutrition_views.AdminNutritionIngredientListCreateView.as_view(), name='admin-nutrition-ingredients-list'),
+    path('api/v2/admin/nutrition/ingredients/<int:ingredient_id>/', kinetic_nutrition_views.AdminNutritionIngredientDetailView.as_view(), name='admin-nutrition-ingredients-detail'),
+
+    # Kinetic Precision Super Admin Exercise Governance (/api/v2/admin/exercises/**)
+    path('api/v2/admin/exercises/', admin_exercise_views.AdminExerciseListView.as_view(), name='admin-exercises-list'),
+    path('api/v2/admin/exercises/<int:base_id>/publish/', admin_exercise_views.AdminExercisePublishView.as_view(), name='admin-exercise-publish'),
+    path('api/v2/admin/exercises/<int:base_id>/deactivate/', admin_exercise_views.AdminExerciseDeactivateView.as_view(), name='admin-exercise-deactivate'),
+
+    # Kinetic Precision Super Admin Feedback Management (/api/v2/admin/feedback/**)
+    path('api/v2/admin/feedback/', admin_feedback_views.AdminFeedbackListView.as_view(), name='admin-feedback-list'),
+    path('api/v2/admin/feedback/<int:report_id>/', admin_feedback_views.AdminFeedbackDetailView.as_view(), name='admin-feedback-detail'),
+
+    # Kinetic Precision Super Admin Trainer Panel (/api/v2/admin/clients/** & /api/v2/admin/schedules/**)
+    path('api/v2/admin/clients/', gym_admin_views.AdminClientListCreateView.as_view(), name='admin-clients-list'),
+    path('api/v2/admin/clients/<int:client_id>/', gym_admin_views.AdminClientDetailView.as_view(), name='admin-clients-detail'),
+    path('api/v2/admin/clients/<int:client_id>/stats/', gym_admin_views.AdminClientBodyStatsView.as_view(), name='admin-clients-stats'),
+    path('api/v2/admin/clients/<int:client_id>/assign-schedule/', gym_admin_views.AdminAssignScheduleView.as_view(), name='admin-clients-assign-schedule'),
+    path('api/v2/admin/schedules/', gym_admin_views.AdminScheduleListCreateView.as_view(), name='admin-schedules-list'),
+    path('api/v2/admin/schedules/<int:schedule_id>/', gym_admin_views.AdminScheduleDetailView.as_view(), name='admin-schedules-detail'),
+    path('api/v2/admin/schedules/<int:schedule_id>/days/<int:day_number>/exercises/', gym_admin_views.AdminScheduleDayExerciseCreateView.as_view(), name='admin-schedules-day-exercise'),
+
+    # Kinetic Precision Gym Command Center (Owner Exclusive /api/v2/owner/**)
+    path('api/v2/owner/register/', gym_owner_views.OwnerRegistrationView.as_view(), name='owner-register'),
+    path('api/v2/owner/<int:owner_id>/approve/', gym_owner_views.OwnerApprovalView.as_view(), name='owner-approve'),
+    path('api/v2/owner/clients/', gym_owner_views.OwnerClientListCreateView.as_view(), name='owner-clients-list'),
+    path('api/v2/owner/clients/<int:client_id>/', gym_owner_views.OwnerClientDetailView.as_view(), name='owner-clients-detail'),
+    path('api/v2/owner/clients/<int:client_id>/stats/', gym_owner_views.OwnerClientBodyStatsView.as_view(), name='owner-clients-stats'),
+    path('api/v2/owner/schedules/', gym_owner_views.OwnerScheduleListCreateView.as_view(), name='owner-schedules-list'),
+    path('api/v2/owner/schedules/<int:schedule_id>/', gym_owner_views.OwnerScheduleDetailUpdateView.as_view(), name='owner-schedules-detail'),
+    path('api/v2/owner/schedules/<int:schedule_id>/reorder/', gym_owner_views.OwnerScheduleReorderView.as_view(), name='owner-schedules-reorder'),
+    path('api/v2/owner/exercises/', gym_owner_views.OwnerExerciseListCreateView.as_view(), name='owner-exercises-list'),
+    path('api/v2/owner/trainers/', trainer_booking_views.OwnerTrainerAssignView.as_view(), name='owner-trainers-assign'),
+
+    # Module 13 — Community / Social Feed (/api/v2/social/**)
+    path('api/v2/social/posts/', social_views.PostListCreateView.as_view(), name='social-posts-list'),
+    path('api/v2/social/posts/<uuid:pk>/', social_views.PostDetailView.as_view(), name='social-posts-detail'),
+    path('api/v2/social/posts/<uuid:pk>/like/', social_views.PostLikeView.as_view(), name='social-posts-like'),
+    path('api/v2/social/posts/<uuid:pk>/unlike/', social_views.PostLikeView.as_view(), name='social-posts-unlike'),
+    path('api/v2/social/posts/<uuid:pk>/comments/', social_views.PostCommentListCreateView.as_view(), name='social-comments-list'),
+    path('api/v2/social/posts/<uuid:pk>/report/', social_views.ContentReportView.as_view(), name='social-post-report'),
+    path('api/v2/social/report/', social_views.ContentReportView.as_view(), name='social-report-standalone'),
+    path('api/v2/social/comments/<int:pk>/', social_views.CommentDeleteView.as_view(), name='social-comment-delete'),
+    path('api/v2/social/follow/', social_views.FollowListCreateView.as_view(), name='social-follow-list'),
+    path('api/v2/social/follow/<int:pk>/', social_views.FollowDeleteView.as_view(), name='social-follow-delete'),
+    path('api/v2/social/poll/<int:option_id>/vote/', social_views.PollVoteView.as_view(), name='social-poll-vote'),
+    path('api/v2/social/block/', social_views.UserBlockView.as_view(), name='social-block'),
+    path('api/v2/social/notifications/', social_views.NotificationListView.as_view(), name='social-notifications'),
+    path('api/v2/social/notifications/<uuid:pk>/read/', social_views.NotificationMarkReadView.as_view(), name='social-notification-read'),
+
+    # Module 14 — Trainer Directory & Booking (/api/v2/trainers/**, /api/v2/classes/**)
+    path('api/v2/trainers/', trainer_booking_views.TrainerListView.as_view(), name='trainers-list'),
+    path('api/v2/trainers/<int:pk>/', trainer_booking_views.TrainerDetailView.as_view(), name='trainers-detail'),
+    path('api/v2/classes/', trainer_booking_views.GroupClassListView.as_view(), name='classes-list'),
+    path('api/v2/classes/<int:pk>/book/', trainer_booking_views.ClassBookView.as_view(), name='classes-book'),
+    path('api/v2/classes/<int:pk>/cancel/', trainer_booking_views.ClassCancelView.as_view(), name='classes-cancel'),
+    path('api/v2/private-sessions/', trainer_booking_views.PrivateSessionListCreateView.as_view(), name='private-sessions-list'),
+    path('api/v2/private-sessions/<int:pk>/', trainer_booking_views.PrivateSessionDetailView.as_view(), name='private-sessions-detail'),
+
+    # Module 15 — Achievements, Favorites & Home Widgets (/api/v2/**)
+    path('api/v2/achievements/', achievements_favorites_widgets_views.UserAchievementListView.as_view(), name='achievements-list'),
+    path('api/v2/achievements/catalogue/', achievements_favorites_widgets_views.AchievementCatalogueView.as_view(), name='achievements-catalogue'),
+    path('api/v2/favorites/', achievements_favorites_widgets_views.FavoriteListCreateView.as_view(), name='favorites-list'),
+    path('api/v2/favorites/<int:pk>/', achievements_favorites_widgets_views.FavoriteDetailView.as_view(), name='favorites-detail'),
+    path('api/v2/home-widgets/', achievements_favorites_widgets_views.HomeWidgetListView.as_view(), name='home-widgets-list'),
+    path('api/v2/home-widgets/reorder/', achievements_favorites_widgets_views.HomeWidgetReorderView.as_view(), name='home-widgets-reorder'),
+
     path('api/v2/', include(router.urls)),
     path('api/v2/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v2/token/verify', TokenVerifyView.as_view(), name='token_verify'),

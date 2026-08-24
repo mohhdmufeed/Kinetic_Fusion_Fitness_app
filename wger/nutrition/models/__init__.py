@@ -24,3 +24,4 @@ from .meal import Meal
 from .meal_item import MealItem
 from .plan import NutritionPlan
 from .sources import Source
+from .kinetic_nutrition import KineticIngredient, KineticDiaryEntry

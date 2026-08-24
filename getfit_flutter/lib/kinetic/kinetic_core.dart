@@ -1,0 +1,42 @@
+/// Kinetic Precision — Application Core & Intelligence Engine
+/// Fully local, cloud-independent personal fitness decision engine.
+library kinetic_core;
+
+export 'domain/models.dart';
+export 'math/time_series.dart';
+export 'math/baseline_calc.dart';
+export 'math/training_load.dart';
+export 'intelligence/contracts.dart';
+export 'intelligence/feature_engine.dart';
+export 'intelligence/state_estimator.dart';
+export 'intelligence/recovery_engine.dart';
+export 'intelligence/training_engine.dart';
+export 'intelligence/progression_engine.dart';
+export 'intelligence/sleep_engine.dart';
+export 'intelligence/nutrition_engine.dart';
+export 'intelligence/decision_engine.dart';
+export 'intelligence/feedback_loop.dart';
+export 'persistence/kinetic_store.dart';
+export 'simulation/archetypes.dart';
+export 'simulation/generator.dart';
+export 'services/today_service.dart';
+export 'services/training_service.dart';
+export 'services/telemetry_service.dart';
+export 'data/user_repository.dart';
+export 'data/goal_repository.dart';
+export 'data/exercise_repository.dart';
+export 'data/session_repository.dart';
+export 'data/workout_repository.dart';
+export 'data/migrations/migration_v2_domain_models.dart';
+export 'normalization/normalization_pipeline.dart';
+export 'domain/feature_model.dart';
+export 'domain/latent_states.dart';
+export 'services/baseline_service.dart';
+export 'services/progression_service.dart';
+export 'services/sleep_service.dart';
+export 'services/nutrition_service.dart';
+export 'services/decision_service.dart';
+export 'services/feedback_service.dart';
+export 'services/simulation_service.dart';
+export 'contracts/app_view_models.dart';
+export 'services/kinetic_app_facade.dart';

@@ -490,18 +490,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Backend section
-          _sectionTitle('Backend'),
-          const SizedBox(height: 12),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.dns_outlined, color: AppColors.primary),
-              title: const Text('Server URL'),
-              subtitle: Text(AppConstants.baseUrl,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            ),
-          ),
-          const SizedBox(height: 24),
+
+
+
+
 
           // Account section
           _sectionTitle('Account'),

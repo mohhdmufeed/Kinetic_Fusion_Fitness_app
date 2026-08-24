@@ -14,7 +14,7 @@ void main() async {
       overrides: [
         databaseProvider.overrideWithValue(db),
       ],
-      child: const GetFitApp(),
+      child: const KineticPrecisionApp(),
     ),
   );
 }

@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'wger.gallery',
     'wger.measurements',
     'wger.trophies',
+    'wger.social',
 
     # reCaptcha support, see https://github.com/praekelt/django-recaptcha
     'django_recaptcha',
@@ -483,7 +484,7 @@ THUMBNAIL_ALIASES = {
 # https://www.django-rest-framework.org/
 #
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('wger.utils.permissions.WgerPermission',),
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'DEFAULT_PAGINATION_CLASS': 'wger.utils.pagination.WgerLimitOffsetPagination',
     'PAGE_SIZE': 20,
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
@@ -560,15 +561,25 @@ SPECTACULAR_SETTINGS = {
 }
 
 #
+# Password Hashers (Argon2 Default)
+#
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
+#
 # Django Rest Framework SimpleJWT
 #
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=120),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
-    'ALGORITHM': 'RS256',
+    'ALGORITHM': 'HS256',
 }
 
 #
@@ -583,7 +594,7 @@ CORS_URLS_REGEX = r'^/api/.*$'
 IGNORABLE_404_URLS = (re.compile(r'^/favicon\.ico$'),)
 
 #
-# Password rules
+# Password rules (Minimum 10 chars + blocklist + similarity + numeric)
 #
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -591,6 +602,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,
+        },
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -606,7 +620,7 @@ USER_AGENTS_CACHE = 'default'
 # Application specific configuration options
 #
 WGER_SETTINGS = {
-    'ALLOW_GUEST_USERS': True,
+    'ALLOW_GUEST_USERS': False,
     'ALLOW_REGISTRATION': True,
     'ALLOW_UPLOAD_VIDEOS': False,
     'EMAIL_FROM': 'wger Workout Manager <wger@example.com>',
