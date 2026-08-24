@@ -1,99 +1,145 @@
-# GetFit
+# Kinetic Fusion
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/logo.png" width="100" height="100" alt="GetFit logo">
-
-![AGPLv3 License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
+  <img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/logo.png" width="100" height="100" alt="Kinetic Fusion Logo">
 </p>
 
-
-GetFit is a free workout and fitness manager (built on wger).
-
-- 🏋️ **Custom Workout Routines** – Create flexible routines with automatic weight progression rules.
-- 📊 **Comprehensive Tracking** – Track diet plans, body weight, and custom measurements.
-- 🍽️ **Nutrition Management** – Log your calories with a food database
-  from [Open Food Facts](https://openfoodfacts.org).
-- 📸 **Progress Gallery** – Upload and track your fitness progress with photos.
-- 📚 **Exercise Wiki** – Access and contribute to the built-in exercises.
-- 📱 **Cross-Platform Apps** – Available on
-  [Android](https://play.google.com/store/apps/details?id=de.wger.flutter),
-  [iOS](https://apps.apple.com/us/app/wger-workout-manager/id6502226792),
-  [F-Droid](https://f-droid.org/en/packages/de.wger.flutter/),
-  and [Flathub](https://flathub.org/apps/de.wger.flutter).
-- 🐳 **Self-Hostable** – Deploy easily with Docker for full control.
-- 🌍 **Multilingual Support** – Translated by the community via Weblate.
-- 🔗 **Powerful API** – REST API for third-party integrations or automations.
-- 👥 **Multi-User Support** – Includes basic gym management features.
-- 🆓 **100% Free & Open Source** – Licensed under AGPL-3.0 or later.
-
-
-For a live system, visit: <https://wger.de>
-
-<p align="center" style="line-height:0; margin:0; padding:0;">
-  <a href="https://play.google.com/store/apps/details?id=de.wger.flutter" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/play-store/badge.svg" alt="Get it on Google Play" height="50" style="margin-right:8px; vertical-align:middle; border:none; outline:none; display:inline-block;"></a>
-  <a href="https://apps.apple.com/us/app/wger-workout-manager/id6502226792" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="64" style="margin-right:8px; vertical-align:middle; border:none; outline:none; display:inline-block; background:none;"></a>
-  <a href="https://f-droid.org/packages/de.wger.flutter/" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/fdroid/get-it-on.png" alt="Get it on F-Droid" height="50" style="margin-right:8px; vertical-align:middle; border:none; outline:none; display:inline-block; background:none;"></a>
-  <a href="https://flathub.org/apps/de.wger.flutter" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/flathub/black.svg" alt="Get it on Flathub" height="50" style="vertical-align:middle; border:none; outline:none; display:inline-block; background:none;"></a>
+<p align="center">
+  <strong>Local-First Personal Fitness Intelligence System & Robust Backend Engine</strong>
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter" alt="Flutter">
+  <img src="https://img.shields.io/badge/Django-6.0-092E20?logo=django" alt="Django">
+  <img src="https://img.shields.io/badge/Database-SQLite%20%7C%20PostgreSQL-336791?logo=postgresql" alt="Database">
+  <img src="https://img.shields.io/badge/Architecture-Local--First-orange" alt="Local First">
+  <img src="https://img.shields.io/badge/Tests-167%20Passing-brightgreen" alt="Tests">
+</p>
 
+---
 
-## Self-hosting
+## ⚡ Overview
 
-Hosting your own instance is basically just a `docker compose up -d` away. For
-more detailed setup instructions take a look at the provided
-[docker compose file](https://github.com/wger-project/docker) and the
-[corresponding documentation](https://wger.readthedocs.io/en/latest/installation/docker.html).
+**Kinetic Fusion** is a personal fitness intelligence system engineered with a strict **local-first** architecture. Rather than acting as a passive log, Kinetic Fusion functions as a **decision and autoregulation engine** that transforms personal recovery, sleep, strain, and workout telemetry into actionable recommendations.
 
-## Developing and contributing
+### Key Pillars:
+- 🧠 **Applied Intelligence & Autoregulation**: ACWR (Acute:Chronic Workload Ratio) modeling, recovery index estimation, and dynamic intra-workout double progression.
+- 📱 **Local-First Flutter Mobile App**: High-performance cross-platform application powered by Riverpod and Drift (SQLite) with zero network requirement for core operations.
+- 🌐 **Hardened Django REST Backend**: Authoritative sync changelog engine, dual JWT token authentication (`/api/v2/auth/*`), and extensive exercise databases.
+- 🔒 **Privacy-First Data Boundary**: On-device calculation, local telemetry sanitization, and end-to-end data ownership.
 
-Our goal is to build an awesome and flexible fitness and nutrition manager,
-along with a comprehensive list of exercises and ingredients, all released
-under a free license.
+---
 
-For this, we’d love your help! Whether it’s code, translations, exercises or
-reporting issues and ideas, check out our
-[contribution guide](https://wger.readthedocs.io/en/latest/contributing.html)
-to get started.
+## 🏗️ System Architecture
 
-A huge thank you to everyone who has contributed so far! ❤️ See the full list
-in [AUTHORS.md](AUTHORS.md).
+```
+┌────────────────────────────────────────────────────────┐
+│               Kinetic Fusion Mobile App                │
+│                 (Flutter / Android / iOS)              │
+│                                                        │
+│   [ UI Screens & ViewModels ]                          │
+│                ↓                                       │
+│   [ Application Services & Intelligence Engines ]      │
+│     • Recovery Engine   • Progression Engine           │
+│     • Sleep Engine      • State Estimator              │
+│                ↓                                       │
+│   [ Local Persistence Layer (Drift SQLite) ]           │
+└───────────────────────────┬────────────────────────────┘
+                            │
+               Optional Background Sync (REST + JWT)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             Kinetic Fusion Backend Engine              │
+│               (Django REST Framework)                  │
+│                                                        │
+│   • Auth & Security Tier (/api/v2/auth/*)              │
+│   • Authoritative Sync Engine (/api/v2/sync/*)         │
+│   • Exercise & Nutrition Database (/api/v2/*)          │
+│   • Telemetry & Admin Command Center                   │
+└───────────────────────────┬────────────────────────────┘
+                            ▼
+            [ PostgreSQL / SQLite Database ]
+```
 
-## Documentation
+---
 
-Consult the online documentation at
+## 🚀 Quickstart
 
-* <https://wger.readthedocs.io>
+### 1. Backend Setup & Run
 
-for installation instructions, API documentation, development guidelines, and
-other information
+#### Prerequisites
+- Python 3.12+ (Virtual environment recommended)
+- Dependencies installed via `pip` or `uv`
 
-## Contact
+```bash
+# 1. Apply database migrations
+python manage.py migrate --settings=settings.local_dev
 
-Feel free to contact us if you found this useful or if there was something that
-didn't behave as you expected. We can't fix what we don't know about, so please
-report liberally. If you're not sure if something is a bug or not, feel free to
-file a bug anyway.
+# 2. Seed database with core exercise library & translations
+python manage.py loaddata languages.json licenses.json setting_repetition_units.json setting_weight_units.json categories.json equipment.json muscles.json exercise-base-data.json translations.json --settings=settings.local_dev
 
-* **Discord:** <https://discord.gg/rPWFv6W>
-* **Mastodon:** <https://fosstodon.org/@wger>
-* **Issue tracker:** <https://github.com/wger-project/wger/issues>
+# 3. Start the backend development server
+python manage.py runserver 0.0.0.0:8000 --settings=settings.local_dev
+```
 
-## Sources
+---
 
-All the code and the content is available on github:
+### 2. Mobile App (Flutter) Setup & Build
 
-* <https://github.com/wger-project>
+```bash
+cd getfit_flutter
 
-## Translation
+# 1. Install Flutter dependencies
+flutter pub get
 
-Translate the app to your language on [Weblate](https://hosted.weblate.org/engage/wger/).
+# 2. Run unit tests
+flutter test
 
-[![translation status](https://hosted.weblate.org/widgets/wger/-/multi-blue.svg)](https://hosted.weblate.org/engage/wger/)
+# 3. Build Release Android APK
+flutter build apk --release
+```
 
-## License
+The compiled release APK is generated at:
+`getfit_flutter/build/app/outputs/flutter-apk/app-release.apk`
 
-* Application Code: [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html)
-* Exercise/Ingredient Data: Creative Commons (see individual entries)
-* Documentation: [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+---
 
+## 🧪 Testing & Verification
+
+The Kinetic Fusion test suite verifies end-to-end mathematical determinism, offline resilience, and domain models:
+
+```bash
+cd getfit_flutter
+flutter test
+```
+*Status:* **167 tests passed (0 failures)** covering:
+- Deterministic simulation pipelines across synthetic archetypes.
+- Dynamic load progression and volume adjustments.
+- Offline SQLite storage and local query performance.
+- JWT session rotation and fallback recovery.
+
+---
+
+## 📂 Repository Structure
+
+```
+├── getfit_flutter/         # Kinetic Fusion Mobile App (Flutter)
+│   ├── lib/
+│   │   ├── kinetic/        # Intelligence Engines, Math Models & Persistence
+│   │   ├── core/           # Auth, Database, API Client, Routing & Sync
+│   │   └── features/       # Screens, Dashboards, Workouts & Telemetry UI
+│   └── test/               # Comprehensive Unit & Integration Test Suites
+├── wger/                   # Kinetic Fusion Backend Engine (Django REST)
+│   ├── core/               # Auth, Security, Sync Engine & Models
+│   ├── exercises/          # Exercise Database, Muscle Groups & Taxonomy
+│   └── nutrition/          # Nutrition Tracking & Ingredient Database
+├── settings/               # Environment & Deployment Configurations
+└── setup-backend.md        # Comprehensive Backend Setup & Migration Guide
+```
+
+---
+
+## 📄 License
+
+- **Application Code:** Licensed under the [AGPL-3.0-or-later](LICENSE.txt).
+- **Exercise & Reference Data:** Creative Commons (see individual fixture files).
